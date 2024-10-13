@@ -12,9 +12,7 @@ import {
   useLoaderData,
   useNavigate,
   useParams,
-  useSubmit,
 } from "@remix-run/react";
-import { USER_APP_DEFAULTS } from "~/constants/defaults";
 import { editSongReducer, useAppContext } from "~/context/AppContext";
 import clamp from "~/utils/clamp";
 import { getChordPro } from "~/utils/getChordPro";
@@ -88,7 +86,6 @@ export default function SongView() {
   const data = useLoaderData<typeof loader>();
 
   const { toast } = useToast();
-  const submit = useSubmit();
 
   const { setSongPreferences } = useFirestore();
 
@@ -136,42 +133,6 @@ export default function SongView() {
       }
     }
   }, [song]);
-
-  const onPressPDF = async () => {
-    if (songIdParam && song) {
-      const formData = new FormData();
-      formData.append("id", song.id || "");
-      formData.append("title", song.title);
-      formData.append("chordpro", song.content);
-      formData.append("transpose", String(song.transposeAmount || 0)); // Default to 0 if undefined
-      formData.append(
-        "font",
-        String(song.fontSize || USER_APP_DEFAULTS.fontSize)
-      );
-
-      const response = await fetch("/action/get-pdf", {
-        method: "POST",
-        body: formData,
-      });
-
-      // Convert the response to a Blob
-      const blob = await response.blob();
-
-      // Create a URL for the Blob
-      const url = window.URL.createObjectURL(blob);
-
-      // Open the PDF in a new browser tab
-      window.open(url, "_blank");
-
-      // Or download the url instead
-      // const a = document.createElement("a");
-      // a.href = url;
-      // a.download = "chordsheet.pdf"; // Set the file name
-      // document.body.appendChild(a);
-      // a.click();
-      // a.remove();
-    }
-  };
 
   const onChangeShowTabs = async (value: boolean) => {
     setShowTabs(value);
@@ -271,12 +232,10 @@ export default function SongView() {
             <Edit2Icon className="size-4" />
           </Link>
         </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={onPressPDF}
-          className="ml-4">
-          <FileMusicIcon className="size-4" />
+        <Button size="sm" variant="outline" className="ml-4">
+          <Link to={`/songs/${songIdParam}/pdf`}>
+            <FileMusicIcon className="size-4" />
+          </Link>
         </Button>
       </div>
       {/* Main content (song sheet) */}

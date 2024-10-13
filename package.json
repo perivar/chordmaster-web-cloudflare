@@ -4,8 +4,6 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "build:worker": "esbuild ./app/service-worker/index.ts --outfile=./public/service-worker.js --minify --bundle --format=esm --define:process.env.NODE_ENV='\"production\"'",
-    "dev:worker": "esbuild ./app/service-worker/index.ts --outfile=./public/service-worker.js --bundle --format=esm --define:process.env.NODE_ENV='\"development\"' --watch",
     "build": "remix vite:build",
     "deploy": "npm run build && wrangler pages deploy",
     "dev": "remix vite:dev",
@@ -61,7 +59,7 @@
     "deepmerge": "^4.3.1",
     "firebase": "^10.14.1",
     "he": "^1.2.0",
-    "i18next": "^23.15.2",
+    "i18next": "^23.16.0",
     "i18next-browser-languagedetector": "^8.0.0",
     "isbot": "^5.1.17",
     "lucide-react": "^0.452.0",

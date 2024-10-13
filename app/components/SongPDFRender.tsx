@@ -13,29 +13,32 @@ import ChordSheetJS, { ChordLyricsPair, Song } from "chordsheetjs";
 
 const styles = StyleSheet.create({
   page: {
-    padding: 12,
+    paddingVertical: 20,
+    paddingHorizontal: 30,
   },
   title: {
     fontFamily: "Times-Roman",
-    fontSize: 20,
+    fontSize: 18,
     flexGrow: 1,
     textAlign: "center",
   },
   artist: {
     fontFamily: "Times-Roman",
     fontSize: 14,
+    flexGrow: 1,
+    textAlign: "center",
   },
   comment: {
-    fontSize: 12,
+    fontSize: 10,
     fontStyle: "italic",
     color: "#2563EB",
   },
   tab: {
-    fontSize: 12,
+    fontSize: 10,
     fontFamily: "Courier",
   },
   songLine: {
-    fontSize: 12,
+    fontSize: 10,
 
     display: "flex",
     flexDirection: "row",
@@ -72,7 +75,7 @@ const styles = StyleSheet.create({
     whiteSpace: "nowrap",
   },
   metaContainer: {
-    fontSize: 12,
+    fontSize: 10,
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
