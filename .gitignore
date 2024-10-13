@@ -6,3 +6,9 @@ node_modules
 .dev.vars
 
 .wrangler
+
+eslint_errors.tsx
+serviceAccountKey.json
+firebase-config.json
+scripts/download-file.js
+public/service-worker.js

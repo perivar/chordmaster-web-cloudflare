@@ -1,0 +1,59 @@
+.chord-sheet {
+  @apply font-mono;
+}
+
+.title {
+  @apply font-extrabold;
+}
+
+.artist {
+  @apply block font-normal cursor-pointer hover:underline mb-2 text-muted-foreground;
+}
+
+.meta-label {
+  @apply text-gray-500 inline-block w-1/12 break-words align-top capitalize;
+}
+
+.meta-value {
+  @apply text-green-500 inline-block w-11/12;
+}
+
+.comment {
+  @apply text-primary font-semibold mt-6 block;
+}
+
+.row {
+  @apply flex min-h-[1.5em] leading-[1.5];
+}
+
+.column {
+  @apply mr-0;
+}
+
+.paragraph {
+  @apply mb-4;
+}
+
+.chord {
+  @apply text-red-500;
+}
+
+.chord:hover {
+  @apply underline;
+}
+
+.chord:not(:last-child) {
+  padding-right: 10px; /* Custom padding */
+}
+
+.chord:after,
+.lyrics:after {
+  content: "\200b"; /* Zero-width space */
+}
+
+.tab {
+  @apply mt-6;
+}
+.tab-line {
+  @apply inline-block max-w-3 break-words pb-5;
+}
