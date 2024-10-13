@@ -14,6 +14,7 @@ import {
   useParams,
 } from "@remix-run/react";
 import { editSongReducer, useAppContext } from "~/context/AppContext";
+import { readDataFileFromUrl } from "~/files.server";
 import clamp from "~/utils/clamp";
 import { getChordPro } from "~/utils/getChordPro";
 import { Chord } from "chordsheetjs";
@@ -22,7 +23,6 @@ import {
   ChevronUp,
   Edit2Icon,
   EllipsisVertical,
-  FileMusicIcon,
   ListPlus,
   Minus,
   Plus,
@@ -43,7 +43,7 @@ import {
 } from "~/components/ui/sheet";
 import { Switch } from "~/components/ui/switch";
 import { useToast } from "~/components/ui/use-toast";
-import ChordTab from "~/components/ChordTab";
+import ChordTab, { GuitarChords } from "~/components/ChordTab";
 import LinkButton from "~/components/LinkButton";
 import LoadingIndicator from "~/components/LoadingIndicator";
 import SelectPlaylist from "~/components/SelectPlaylist";
@@ -59,7 +59,7 @@ import styles from "~/styles/chordsheetjs.css?url";
 // better? : https://github.com/T-vK/chord-collection
 // newer? : https://github.com/tombatossals/chords-db and https://tombatossals.github.io/react-chords/
 // https://github.com/techies23/react-chords
-import chordsData from "../../public/assets/chords/guitar.json";
+// import chordsData from "../../public/assets/chords/guitar.json";
 
 export const meta: MetaFunction = () => [
   { title: "Song" },
@@ -70,6 +70,12 @@ export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const headers = { "Cache-Control": "max-age=86400" }; // One day
+
+  // load chord data directly from github to save space on cloudstore
+  // i.e instead of: import chordsData from "../../public/assets/chords/guitar.json";
+  const chordsData = (await readDataFileFromUrl(
+    "https://raw.githubusercontent.com/tombatossals/chords-db/master/lib/guitar.json"
+  )) as GuitarChords;
 
   // serve the chords data file here, since using it directly in the client
   // causes errors like:
@@ -232,11 +238,6 @@ export default function SongView() {
             <Edit2Icon className="size-4" />
           </Link>
         </Button>
-        <Button size="sm" variant="outline" className="ml-4">
-          <Link to={`/songs/${songIdParam}/pdf`}>
-            <FileMusicIcon className="size-4" />
-          </Link>
-        </Button>
       </div>
       {/* Main content (song sheet) */}
       <div className="size-full pb-96">
@@ -260,7 +261,6 @@ export default function SongView() {
                 song={songProps.transformedSong}
                 fontSize={fontSize}
               /> */}
-
               <LinkButton
                 title={song?.external?.source}
                 url={song?.external?.url}
