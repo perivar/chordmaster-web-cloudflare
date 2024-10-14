@@ -17,6 +17,7 @@ import { useTranslation } from "react-i18next";
 import { ISong } from "~/lib/firestoreQueries";
 import useFirestore from "~/hooks/useFirestore";
 import EmptyListMessage from "~/components/EmptyListMessage";
+import Header from "~/components/Header";
 import LoadingIndicator from "~/components/LoadingIndicator";
 import SortableList from "~/components/SortableList";
 
@@ -105,8 +106,9 @@ export default function OnlineSearchView() {
         ),
       },
       {
-        accessorKey: "artist.name",
+        accessorKey: "artist",
         header: t("artist_name"),
+        hideOnMobile: true, // Custom field to hide this column on mobile
         cell: ({ row }) => (
           <div>
             <div className="font-medium">{row.original.artist.name}</div>
@@ -143,11 +145,8 @@ export default function OnlineSearchView() {
 
   return (
     <div className="container mx-auto my-6 px-4 sm:px-6 lg:px-8">
-      <div className="mb-2 flex w-full flex-row items-center justify-between">
-        <div className="flex-1 text-center text-xl font-semibold">
-          {t("community_songs")}
-        </div>
-      </div>
+      <Header title={t("community_songs")} />
+
       <SortableList
         table={table}
         onFilterChange={onFilterChange}

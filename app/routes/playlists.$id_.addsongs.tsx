@@ -17,6 +17,7 @@ import { useTranslation } from "react-i18next";
 import { ISong } from "~/lib/firestoreQueries";
 import useFirestoreMethods from "~/hooks/useFirestoreMethods";
 import { Button } from "~/components/ui/button";
+import Header from "~/components/Header";
 import SortableList from "~/components/SortableList";
 
 export const meta: MetaFunction = () => [
@@ -106,8 +107,9 @@ export default function PlaylistAddSongs() {
         ),
       },
       {
-        accessorKey: "artist.name",
+        accessorKey: "artist",
         header: t("artist_name"),
+        hideOnMobile: true, // Custom field to hide this column on mobile
         cell: ({ row }) => (
           <div className="hidden md:table-cell">
             <Link to={`/artists/${row.original.artist.id}`}>
@@ -183,8 +185,10 @@ export default function PlaylistAddSongs() {
   if (!playlist) return null;
 
   return (
-    <div className="my-6">
+    <div className="container mx-auto my-6 px-4 sm:px-6 lg:px-8">
       {error && <p className="mt-1 text-red-600 dark:text-red-400">{error}</p>}
+      <Header title={playlist?.name} />
+
       <SortableList
         table={table}
         onFilterChange={onFilterChange}

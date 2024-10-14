@@ -5,6 +5,7 @@ import { useParams } from "@remix-run/react";
 import { useAppContext } from "~/context/AppContext";
 import { useTranslation } from "react-i18next";
 
+import Header from "~/components/Header";
 import SortableSongList from "~/components/SortableSongList";
 
 export const meta: MetaFunction = () => [
@@ -18,16 +19,15 @@ export default function ArtistView() {
   const artistIdParam = params?.id;
 
   const { state } = useAppContext();
-  const songs = state.songs;
-  const artistSongs = songs.filter(s => s.artist.id === artistIdParam);
+  const allSongs = state.songs;
+  const allArtists = state.artists;
+  const artist = allArtists.find(a => a.id === artistIdParam);
+
+  const artistSongs = allSongs.filter(s => s.artist.id === artistIdParam);
 
   return (
     <div className="container mx-auto my-6 px-4 sm:px-6 lg:px-8">
-      <div className="mb-3 mt-7 flex w-full flex-row items-center">
-        <div className="flex-1 text-center text-xl font-semibold">
-          {t("songs_by_artist")}
-        </div>
-      </div>
+      <Header title={artist?.name} />
 
       <SortableSongList allItems={artistSongs} />
     </div>

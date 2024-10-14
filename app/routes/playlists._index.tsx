@@ -31,6 +31,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
+import Header from "~/components/Header";
 import { useConfirm } from "~/components/layout/confirm-provider";
 import SortableList from "~/components/SortableList";
 import { TextInputModal } from "~/components/TextInputModal";
@@ -207,18 +208,18 @@ export default function PlaylistsView() {
 
   return (
     <div className="container mx-auto my-6 px-4 sm:px-6 lg:px-8">
-      <div className="mb-2 flex w-full flex-row items-center justify-between">
-        <div className="flex-1"></div>
-        <div className="flex-1 text-center text-xl font-semibold">
-          {t("playlists")}
-        </div>
-        <div className="ml-2 flex flex-1 flex-row items-center justify-end gap-2">
-          <Button size="sm" onClick={() => setShowAddPlaylistModal(true)}>
+      <Header
+        title={t("playlists")}
+        rightButtons={[
+          <Button
+            key="add_playlist"
+            size="sm"
+            onClick={() => setShowAddPlaylistModal(true)}>
             <PlusIcon className="size-4" />
             <span className="ml-2 hidden sm:block">{t("add_playlist")}</span>
-          </Button>
-        </div>
-      </div>
+          </Button>,
+        ]}
+      />
 
       <TextInputModal
         error={error}

@@ -28,6 +28,7 @@ import {
 import { Slider } from "~/components/ui/slider";
 import { useToast } from "~/components/ui/use-toast";
 import FileUploadDialog from "~/components/FileUploadDialog";
+import Header from "~/components/Header";
 import ListItem, { ListItemOption } from "~/components/ListItem";
 import { ModeToggle } from "~/components/ModeToggle";
 import {
@@ -174,11 +175,7 @@ export default function SettingsView() {
 
   return (
     <div className="container mx-auto my-6 px-4 sm:px-6 lg:px-8">
-      <div className="mb-2 flex w-full flex-row items-center justify-between">
-        <div className="flex-1 text-center text-xl font-semibold">
-          {t("settings")}
-        </div>
-      </div>
+      <Header title={t("settings")} />
 
       <ListItem
         onClick={handleExport}

@@ -24,6 +24,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
+import Header from "~/components/Header";
 import SortableList from "~/components/SortableList";
 
 export const meta: MetaFunction = () => [
@@ -117,11 +118,7 @@ export default function ArtistsView() {
 
   return (
     <div className="container mx-auto my-6 px-4 sm:px-6 lg:px-8">
-      <div className="mb-3 mt-7 flex w-full flex-row items-center">
-        <div className="flex-1 text-center text-xl font-semibold">
-          {t("artists")}
-        </div>
-      </div>
+      <Header title={t("artists")} />
 
       <SortableList
         table={table}

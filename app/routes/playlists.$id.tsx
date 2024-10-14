@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next";
 import { ISong } from "~/lib/firestoreQueries";
 import useFirestore from "~/hooks/useFirestore";
 import { Button } from "~/components/ui/button";
+import Header from "~/components/Header";
 import { useConfirm } from "~/components/layout/confirm-provider";
 import SortableSongList from "~/components/SortableSongList";
 
@@ -69,34 +70,33 @@ export default function PlaylistView() {
 
   return (
     <div className="container mx-auto my-6 px-4 sm:px-6 lg:px-8">
-      <div className="mb-2 flex w-full flex-row items-center justify-between">
-        <div className="flex-1">
+      <Header
+        title={playlist?.name}
+        leftButtons={[
           <Button
+            key="delete"
             size="sm"
             variant="destructive"
             onClick={() => handleDelete(playlist?.id, playlist?.name)}>
             <Trash2 className="size-4" />
             <span className="ml-2 hidden sm:block">{t("playlist_delete")}</span>
-          </Button>
-        </div>
-        <div className="flex-1 text-center text-xl font-semibold">
-          {playlist?.name}
-        </div>
-        <div className="ml-2 flex flex-1 flex-row items-center justify-end gap-2">
-          <Button asChild size="sm">
+          </Button>,
+        ]}
+        rightButtons={[
+          <Button key="edit" asChild size="sm">
             <Link to={`/playlists/${playlist?.id}/edit`}>
               <Edit2Icon className="size-4" />
               <span className="ml-2 hidden sm:block">{t("playlist_edit")}</span>
             </Link>
-          </Button>
-          <Button asChild size="sm">
+          </Button>,
+          <Button key="add-songs" asChild size="sm">
             <Link to={`/playlists/${playlist?.id}/addsongs`}>
               <PlusIcon className="size-4" />
               <span className="ml-2 hidden sm:block">{t("add_songs")}</span>
             </Link>
-          </Button>
-        </div>
-      </div>
+          </Button>,
+        ]}
+      />
 
       <SortableSongList allItems={songs} />
     </div>
