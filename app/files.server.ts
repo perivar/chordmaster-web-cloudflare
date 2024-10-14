@@ -25,7 +25,7 @@ export async function readDataFileFromUrl(dataFileUrl: string) {
     }
 
     const data = await response.json();
-    console.log(`Successfully fetched data`);
+    console.log(`Successfully fetched data from ${dataFileUrl}`);
 
     return data;
   } catch (e) {

@@ -69,17 +69,28 @@ export const meta: MetaFunction = () => [
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const headers = { "Cache-Control": "max-age=86400" }; // One day
+  // Get the host from the request headers
+  const host = request.headers.get("host");
+
+  // Determine the protocol
+  const protocol = process.env.NODE_ENV === "development" ? "http" : "https";
+
+  // Construct the URL using the protocol and host
+  const apiUrl = `${protocol}://${host}/assets/chords/guitar.json`;
+
+  // load chord data from server directory
+  const chordsData = (await readDataFileFromUrl(apiUrl)) as GuitarChords;
 
   // load chord data directly from github to save space on cloudstore
   // i.e instead of: import chordsData from "../../public/assets/chords/guitar.json";
-  const chordsData = (await readDataFileFromUrl(
-    "https://raw.githubusercontent.com/tombatossals/chords-db/master/lib/guitar.json"
-  )) as GuitarChords;
+  // const chordsData = (await readDataFileFromUrl(
+  //   "https://raw.githubusercontent.com/tombatossals/chords-db/master/lib/guitar.json"
+  // )) as GuitarChords;
 
   // serve the chords data file here, since using it directly in the client
   // causes errors like:
   // FATAL ERROR: Reached heap limit Allocation failed - JavaScript heap out of memory
+  const headers = { "Cache-Control": "max-age=86400" }; // One day
   return json({ chords: chordsData }, { headers });
 }
 
