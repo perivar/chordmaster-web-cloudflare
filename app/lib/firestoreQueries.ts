@@ -118,14 +118,16 @@ export interface IPlaylist {
   updatedAt?: Timestamp;
 }
 
+const isProduction = process.env.NODE_ENV === "production";
+
 export const debugMethod = (text: string, ...args: any[]) => {
-  if (process.env.NODE_ENV !== "production") {
+  if (!isProduction) {
     console.log(text, ...args);
   }
 };
 
 export const errorMethod = (text: string, ...args: any[]) => {
-  if (process.env.NODE_ENV !== "production") {
+  if (!isProduction) {
     console.error(text, ...args);
   }
 };

@@ -50,7 +50,7 @@ export default function Login() {
       await loginWithEmailAndPassword(email, password);
       console.log("User logged in with email and password successfully!");
     } catch (err) {
-      console.log("loginWithEmailAndPassword", error);
+      console.log("loginWithEmailAndPassword", err);
       if (err instanceof Error) {
         setError(err);
       }
@@ -68,7 +68,7 @@ export default function Login() {
       await loginWithGoogle();
       console.log("User logged in with google successfully!");
     } catch (err) {
-      console.log("loginWithGoogle", error);
+      console.log("loginWithGoogle", err);
       if (err instanceof Error) {
         setError(err);
       }

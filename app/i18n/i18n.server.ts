@@ -9,10 +9,12 @@ import { RemixI18Next } from "remix-i18next/server";
 
 import i18n from "./i18n";
 
+const isProduction = process.env.NODE_ENV === "production";
+
 export const localeCookie = createCookie("lng", {
   path: "/",
   sameSite: "lax",
-  secure: process.env.NODE_ENV === "production",
+  secure: isProduction,
   httpOnly: true,
   maxAge: 365 * 24 * 60 * 60, // 365 days
 });

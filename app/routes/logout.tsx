@@ -23,7 +23,7 @@ export default function Login() {
       await logout();
       console.log("User logged out successfully!");
     } catch (err) {
-      console.log("logout", error);
+      console.log("logout", err);
       if (err instanceof Error) {
         setError(err);
       }

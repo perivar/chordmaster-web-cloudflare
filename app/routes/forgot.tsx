@@ -46,7 +46,7 @@ export default function ForgottenPassword() {
       await sendForgottenPasswordEmail(email);
       console.log("Forgotten epost sent successfully!");
     } catch (err) {
-      console.log("sendForgottenPasswordEmail", error);
+      console.log("sendForgottenPasswordEmail", err);
       if (err instanceof Error) {
         setError(err);
       }

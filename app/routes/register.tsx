@@ -48,7 +48,7 @@ export default function Register() {
       await createUser(email, password);
       console.log("User registered successfully!");
     } catch (err) {
-      console.log("createUser", error);
+      console.log("createUser", err);
       if (err instanceof Error) {
         setError(err);
       }
