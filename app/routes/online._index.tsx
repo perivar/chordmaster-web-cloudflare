@@ -142,7 +142,10 @@ export default function OnlineSearchView() {
   }
 
   return (
-    <div className="container mx-auto my-6">
+    <div className="container mx-auto my-6 px-4 sm:px-6 lg:px-8">
+      <div className="mb-2 flex w-full flex-row items-center justify-between">
+        <div className="flex-1 text-center text-xl font-semibold">{t("community_songs")}</div>
+      </div>
       <SortableList
         table={table}
         onFilterChange={onFilterChange}

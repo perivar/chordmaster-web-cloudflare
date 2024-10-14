@@ -4,6 +4,7 @@ import { ChangeEvent, useEffect, useState } from "react";
 import { flexRender, Table as TanTable } from "@tanstack/react-table";
 import { ChevronDown, ChevronUp, X } from "lucide-react";
 
+import { ISong } from "~/lib/firestoreQueries";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import {
@@ -16,6 +17,7 @@ import {
 } from "~/components/ui/table";
 
 import { DataTablePagination } from "./DataTablePagination";
+import { CustomColumnDef } from "./SortableSongList";
 
 interface ListItem {
   id?: string;
@@ -44,7 +46,7 @@ export default function SortableList<T extends ListItem>({
   };
 
   return (
-    <div className="container mx-auto">
+    <>
       <div className="flex justify-center">
         <div className="relative w-full max-w-md py-2">
           <Input
@@ -70,7 +72,14 @@ export default function SortableList<T extends ListItem>({
           {table.getHeaderGroups().map(headerGroup => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map(header => (
-                <TableHead key={header.id}>
+                <TableHead
+                  key={header.id}
+                  className={
+                    (header.column.columnDef as CustomColumnDef<ISong, unknown>)
+                      .hideOnMobile
+                      ? "hidden md:table-cell"
+                      : ""
+                  }>
                   {header.isPlaceholder ? null : (
                     <div
                       className={`flex items-center space-x-2 ${
@@ -123,6 +132,6 @@ export default function SortableList<T extends ListItem>({
       </Table>
 
       <DataTablePagination table={table} />
-    </div>
+    </>
   );
 }

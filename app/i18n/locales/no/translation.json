@@ -137,5 +137,6 @@
   "theme_dark": "Mørk",
   "theme_light": "Lys",
   "songs_exported_successfully": "Sanger ble eksportert",
-  "deleted_item_with_id": "Slettet element med id"
+  "deleted_item_with_id": "Slettet element med id",
+  "community_songs": "Sanger fra felleskapet"
 }

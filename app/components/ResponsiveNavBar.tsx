@@ -14,6 +14,7 @@ import {
 } from "~/components/ui/navigation-menu";
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetDescription,
   SheetHeader,
@@ -92,9 +93,11 @@ export default function ResponsiveNavBar() {
             <div className="my-4 h-[calc(100vh-8rem)] pb-10 pl-6">
               <div className="flex flex-col space-y-3">
                 {navItems.map((item, index) => (
-                  <Link key={index} to={item.to}>
-                    <h4 className="font-semibold">{item.title}</h4>
-                  </Link>
+                  <SheetClose asChild key={index}>
+                    <Link key={index} to={item.to}>
+                      <h4 className="font-normal">{item.title}</h4>
+                    </Link>
+                  </SheetClose>
                 ))}
               </div>
             </div>

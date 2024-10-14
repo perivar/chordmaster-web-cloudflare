@@ -173,8 +173,12 @@ export default function SettingsView() {
   };
 
   return (
-    <div className="container mx-auto my-6">
-      <h1 className="pb-2 text-2xl font-bold">{t("settings")}</h1>
+    <div className="container mx-auto my-6 px-4 sm:px-6 lg:px-8">
+      <div className="mb-2 flex w-full flex-row items-center justify-between">
+        <div className="flex-1 text-center text-xl font-semibold">
+          {t("settings")}
+        </div>
+      </div>
 
       <ListItem
         onClick={handleExport}

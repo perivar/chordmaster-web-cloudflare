@@ -51,7 +51,7 @@ function ListItem<T>({
       )}>
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold">{title}</h3>
+          <h3 className="text-base font-semibold">{title}</h3>
           {subtitle && (
             <p className="text-sm text-secondary-foreground">{subtitle}</p>
           )}

@@ -30,6 +30,14 @@ import { useConfirm } from "./layout/confirm-provider";
 import SortableList from "./SortableList";
 import { useToast } from "./ui/use-toast";
 
+// Extend the ColumnDef type by intersecting it with your custom fields
+export type CustomColumnDef<TData, TValue = unknown> = ColumnDef<
+  TData,
+  TValue
+> & {
+  hideOnMobile?: boolean; // Custom field to hide this column on mobile
+};
+
 interface ListProps {
   allItems: ISong[];
 }
@@ -61,7 +69,7 @@ export default function SortableSongList({ allItems }: ListProps) {
     [allItems]
   );
 
-  const columns = useMemo<ColumnDef<ISong>[]>(() => {
+  const columns = useMemo<CustomColumnDef<ISong>[]>(() => {
     const handleEdit = async (id: string | undefined) => {
       return navigate(`/songs/${id}/edit`);
     };
@@ -114,8 +122,9 @@ export default function SortableSongList({ allItems }: ListProps) {
         ),
       },
       {
-        accessorKey: "artist.name",
+        accessorKey: "artist",
         header: t("artist_name"),
+        hideOnMobile: true, // Custom field to hide this column on mobile
         cell: ({ row }) => (
           <div className="hidden md:table-cell">
             <Link to={`/artists/${row.original.artist.id}`}>
