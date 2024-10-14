@@ -209,7 +209,9 @@ export default function PlaylistsView() {
     <div className="container mx-auto my-6 px-4 sm:px-6 lg:px-8">
       <div className="mb-2 flex w-full flex-row items-center justify-between">
         <div className="flex-1"></div>
-        <div className="flex-1 text-center text-xl font-semibold">{t("playlists")}</div>
+        <div className="flex-1 text-center text-xl font-semibold">
+          {t("playlists")}
+        </div>
         <div className="ml-2 flex flex-1 flex-row items-center justify-end gap-2">
           <Button size="sm" onClick={() => setShowAddPlaylistModal(true)}>
             <PlusIcon className="size-4" />

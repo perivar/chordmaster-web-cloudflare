@@ -79,7 +79,9 @@ export default function PlaylistView() {
             <span className="ml-2 hidden sm:block">{t("playlist_delete")}</span>
           </Button>
         </div>
-        <div className="flex-1 text-center text-xl font-semibold">{playlist?.name}</div>
+        <div className="flex-1 text-center text-xl font-semibold">
+          {playlist?.name}
+        </div>
         <div className="ml-2 flex flex-1 flex-row items-center justify-end gap-2">
           <Button asChild size="sm">
             <Link to={`/playlists/${playlist?.id}/edit`}>

@@ -138,5 +138,6 @@
   "theme_light": "Light",
   "songs_exported_successfully": "Songs exported succesfully",
   "deleted_item_with_id": "Deleted item with id",
-  "community_songs": "Community Songs"
+  "community_songs": "Community Songs",
+  "songs_by_artist": "Songs by Artist"
 }
