@@ -114,9 +114,11 @@ const SongRender = (props: Props) => {
   const renderChordLyricsPair = (item: ChordLyricsPair, key: string) => {
     const { chords: chordName, lyrics } = item;
 
+    // only render a chord or a lyrics if it exist
+    // use css to handle top or bottom alignment if one of them is missing
     return (
       <div className="column" key={key}>
-        {chordName ? (
+        {chordName && (
           <div
             role="button"
             tabIndex={0}
@@ -125,10 +127,8 @@ const SongRender = (props: Props) => {
             onClick={() => handleChordClick(chordName)}>
             {chordName}
           </div>
-        ) : (
-          <div className="chord"></div>
         )}
-        {<div className="lyrics">{lyrics}</div>}
+        {lyrics && <div className="lyrics">{lyrics}</div>}
       </div>
     );
   };
@@ -169,118 +169,98 @@ const SongRender = (props: Props) => {
 
       // Normal rendering for non-tab lines
       return (
-        <div key={lineIndex} className="row">
-          {line.items.map((item, itemIndex) => {
-            const key = `${lineIndex}${itemIndex}`;
-            if (item instanceof ChordSheetJS.ChordLyricsPair) {
-              return renderChordLyricsPair(item, key);
-            } else if (
+        <>
+          {!line.items.some(
+            item =>
               item instanceof ChordSheetJS.Tag &&
-              item.name &&
-              item.name === TITLE
-            ) {
-              return (
-                <div key={key} className="title">
-                  {item.value}
-                </div>
-              );
-            } else if (
-              item instanceof ChordSheetJS.Tag &&
-              item.name &&
-              item.name === ARTIST
-            ) {
-              return (
-                <div
-                  key={key}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={() => {}}
-                  className="artist"
-                  onClick={props.onPressArtist}>
-                  {item.value}
-                </div>
-              );
-            } else if (
-              item instanceof ChordSheetJS.Tag &&
-              item.name &&
-              item.name === START_OF_VERSE
-            ) {
-              return (
-                <div key={key} className="comment">
-                  {"Verse"} {item.value ?? ""}
-                </div>
-              );
-            } else if (
-              item instanceof ChordSheetJS.Tag &&
-              item.name &&
-              item.name === END_OF_VERSE
-            ) {
-              // ignore
-            } else if (
-              item instanceof ChordSheetJS.Tag &&
-              item.name &&
-              item.name === START_OF_CHORUS
-            ) {
-              return (
-                <div key={key} className="comment">
-                  {"Chorus"} {item.value ?? ""}
-                </div>
-              );
-            } else if (
-              item instanceof ChordSheetJS.Tag &&
-              item.name &&
-              item.name === END_OF_CHORUS
-            ) {
-              // ignore
-            } else if (
-              item instanceof ChordSheetJS.Tag &&
-              item.name &&
-              item.name === COLUMN_BREAK
-            ) {
-              return (
-                <div key={key} className="paragraph">
-                  &nbsp;
-                </div>
-              );
-            } else if (
-              item instanceof ChordSheetJS.Tag &&
-              item.name &&
-              item.name === COMMENT
-            ) {
-              // tag comments have name 'comment' and the comment as value
-              return (
-                <div key={key} className="comment">
-                  {item.value}
-                </div>
-              );
-            } else if (
-              item instanceof ChordSheetJS.Tag &&
-              item.name &&
-              item.value &&
-              item.value !== null
-            ) {
-              return (
-                <div key={key} className="w-full">
-                  <div className="meta-label">{item.name}</div>
-                  <div className="meta-value">{item.value}</div>
-                </div>
-              );
-            } else if (item instanceof ChordSheetJS.Comment && item.content) {
-              return (
-                <div key={key} className="comment">
-                  {item.content}
-                </div>
-              );
-            } else {
-              // ignore
-              return (
-                <div key={key} className="comment">
-                  {item.toString()}
-                </div>
-              );
-            }
-          })}
-        </div>
+              (item.name === END_OF_VERSE || item.name === END_OF_CHORUS)
+          ) && (
+            <div key={lineIndex} className="row">
+              {line.items.map((item, itemIndex) => {
+                const key = `${lineIndex}${itemIndex}`;
+
+                // Handle ChordLyricsPair
+                if (item instanceof ChordSheetJS.ChordLyricsPair) {
+                  return renderChordLyricsPair(item, key);
+                }
+
+                // Handle Tags
+                if (item instanceof ChordSheetJS.Tag && item.name) {
+                  switch (item.name) {
+                    case TITLE:
+                      return (
+                        <div key={key} className="title">
+                          {item.value}
+                        </div>
+                      );
+                    case ARTIST:
+                      return (
+                        <div
+                          key={key}
+                          role="button"
+                          tabIndex={0}
+                          className="artist"
+                          onClick={props.onPressArtist}
+                          onKeyDown={() => {}}>
+                          {item.value}
+                        </div>
+                      );
+                    case START_OF_VERSE:
+                      return (
+                        <div key={key} className="comment">
+                          {"Verse"} {item.value ?? ""}
+                        </div>
+                      );
+                    case START_OF_CHORUS:
+                      return (
+                        <div key={key} className="comment">
+                          {"Chorus"} {item.value ?? ""}
+                        </div>
+                      );
+                    case COLUMN_BREAK:
+                      return (
+                        <div key={key} className="paragraph">
+                          &nbsp;
+                        </div>
+                      );
+                    case COMMENT:
+                      return (
+                        <div key={key} className="comment">
+                          {item.value}
+                        </div>
+                      );
+                    default:
+                      if (item.name && item.value) {
+                        return (
+                          <div key={key} className="w-full">
+                            <div className="meta-label">{item.name}</div>
+                            <div className="meta-value">{item.value}</div>
+                          </div>
+                        );
+                      }
+                      break;
+                  }
+                }
+
+                // Handle Comments
+                if (item instanceof ChordSheetJS.Comment && item.content) {
+                  return (
+                    <div key={key} className="comment">
+                      {item.content}
+                    </div>
+                  );
+                }
+
+                // Fallback rendering
+                return (
+                  <div key={key} className="comment">
+                    {item.toString()}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </>
       );
     });
   };

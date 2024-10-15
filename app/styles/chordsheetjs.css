@@ -19,19 +19,25 @@
 }
 
 .comment {
-  @apply text-primary font-semibold mt-6 block;
+  @apply text-primary font-semibold block;
 }
 
 .row {
-  @apply flex flex-wrap;
+  @apply flex flex-wrap min-h-[1.5em];
 }
 
 .column {
-  @apply mr-0;
+  @apply flex flex-col;
 }
 
-.paragraph {
-  @apply mb-4;
+/* Top align the "chord" div when it's the only child */
+.column > .chord:only-child {
+  @apply mr-2 justify-start;
+}
+
+/* Bottom align the "lyrics" div when it's the only child */
+.column > .lyrics:only-child {
+  @apply mt-auto; /* 'mt-auto' pushes the element to the bottom */
 }
 
 .chord {
@@ -43,7 +49,7 @@
 }
 
 .chord:not(:last-child) {
-  padding-right: 0.5em;
+  @apply pr-0.5;
 }
 
 .chord:after,
@@ -51,9 +57,14 @@
   content: "\200b";
 }
 
+.paragraph {
+  @apply mb-4;
+}
+
 .tab {
   @apply mt-6;
 }
+
 .tab-line {
   @apply inline-block max-w-3 break-words pb-5;
 }
