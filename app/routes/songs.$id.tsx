@@ -16,8 +16,9 @@ import {
 import { editSongReducer, useAppContext } from "~/context/AppContext";
 import { readDataFileFromUrl } from "~/files.server";
 import clamp from "~/utils/clamp";
+import CustomHtmlDivFormatter from "~/utils/CustomHtmlDivFormatter";
 import { getChordPro } from "~/utils/getChordPro";
-import { Chord } from "chordsheetjs";
+import { Chord, Song } from "chordsheetjs";
 import {
   ChevronDown,
   ChevronUp,
@@ -47,13 +48,14 @@ import ChordTab, { GuitarChords } from "~/components/ChordTab";
 import LinkButton from "~/components/LinkButton";
 import LoadingIndicator from "~/components/LoadingIndicator";
 import SelectPlaylist from "~/components/SelectPlaylist";
-import SongRender, {
+import {
   FONT_SIZES,
   MAX_FONT_SIZE,
   MIN_FONT_SIZE,
 } from "~/components/SongRender";
 import SongTransformer from "~/components/SongTransformer";
-import styles from "~/styles/chordsheetjs.css?url";
+// import styles from "~/styles/chordsheetjs.css?url";
+import styles from "~/styles/chordsheet-orig.css?url";
 
 // originally from: https://github.com/artutra/OpenChord/tree/master/app/assets/chords
 // better? : https://github.com/T-vK/chord-collection
@@ -93,6 +95,31 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const headers = { "Cache-Control": "max-age=86400" }; // One day
   return json({ chords: chordsData }, { headers });
 }
+
+interface CustomSongRenderProps {
+  song: Song;
+  fontSize?: number;
+}
+
+const CustomSongRender = ({ song, fontSize = 14 }: CustomSongRenderProps) => {
+  let htmlSong = "";
+  try {
+    htmlSong = new CustomHtmlDivFormatter().format(song, fontSize);
+  } catch (e) {
+    if (e instanceof Error) {
+      console.log(e.message);
+    } else {
+      throw e;
+    }
+  }
+
+  return (
+    <div
+      dangerouslySetInnerHTML={{
+        __html: htmlSong,
+      }}></div>
+  );
+};
 
 export default function SongView() {
   const { t } = useTranslation();
@@ -258,7 +285,7 @@ export default function SongView() {
           showTabs={showTabs}>
           {songProps => (
             <div className="flex flex-col pb-6 pl-6 font-mono">
-              <SongRender
+              {/* <SongRender
                 onPressArtist={onPressArtist}
                 onPressChord={chordString =>
                   onClickChord(songProps.chords, chordString)
@@ -266,6 +293,10 @@ export default function SongView() {
                 song={songProps.transformedSong}
                 fontSize={fontSize}
                 scrollSpeed={scrollSpeed}
+              /> */}
+              <CustomSongRender
+                song={songProps.transformedSong}
+                fontSize={fontSize}
               />
               {/* Testing out the PDF Rendering */}
               {/* <SongPDFRender

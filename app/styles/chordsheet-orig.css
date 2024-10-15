@@ -1,0 +1,155 @@
+body {
+  color: #1e1e1e;
+  background: #fbfbfb;
+  font-family: monospace;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+.title {
+  color: #1e1e1e;
+  font-size: 20px;
+}
+.artist {
+  color: #3b3b3b;
+  display: block;
+  font-weight: bold;
+  cursor: pointer;
+  margin-bottom: 24px;
+}
+.meta-label {
+  color: #3b3b3b;
+  display: inline-block;
+  width: 25%;
+  word-wrap: break-word;
+  vertical-align: top;
+  text-transform: capitalize;
+}
+.meta-value {
+  color: #0064c0;
+  display: inline-block;
+  width: 75%;
+  padding-bottom: 5px;
+}
+.comment {
+  color: #0064c0;
+  display: block;
+  font-weight: bold;
+  margin-top: 24px;
+}
+.line {
+  margin-top: 0px;
+  margin-bottom: 0px;
+  margin-right: 10px;
+  margin-left: 0px;
+  position: relative;
+  font-size: 14px;
+  font-family: monospace;
+  white-space: pre-wrap;
+}
+.line-size-14 {
+  font-size: 14px;
+}
+.line-size-15 {
+  font-size: 15px;
+}
+.line-size-16 {
+  font-size: 16px;
+}
+.line-size-17 {
+  font-size: 17px;
+}
+.line-size-18 {
+  font-size: 18px;
+}
+.line-size-19 {
+  font-size: 19px;
+}
+.line-size-20 {
+  font-size: 20px;
+}
+.line-size-21 {
+  font-size: 21px;
+}
+.line-size-22 {
+  font-size: 22px;
+}
+.line-size-23 {
+  font-size: 23px;
+}
+.line-size-24 {
+  font-size: 24px;
+}
+.chord {
+  color: #d84035;
+  position: relative;
+  display: inline-block;
+  padding-top: 20px;
+  /* width: 0px; */
+  top: -17px;
+  cursor: pointer;
+  /* margin-left: 50px; */
+}
+.chord:hover {
+  color: #0064c0;
+}
+.chord:after {
+  content: "\200b";
+}
+.chord-inline {
+  position: inherit;
+  display: inline-block;
+  padding-top: 0px;
+  width: auto;
+  top: auto;
+}
+.chord-size-14 {
+  top: -14px;
+}
+.chord-size-15 {
+  top: -15px;
+}
+.chord-size-16 {
+  top: -16px;
+}
+.chord-size-17 {
+  top: -17px;
+}
+.chord-size-18 {
+  top: -18px;
+}
+.chord-size-19 {
+  top: -19px;
+}
+.chord-size-20 {
+  top: -20px;
+}
+.chord-size-21 {
+  top: -21px;
+}
+.chord-size-22 {
+  top: -22px;
+}
+.chord-size-23 {
+  top: -23px;
+}
+.chord-size-24 {
+  top: -24px;
+}
+.chord:active {
+  color: #0064c0;
+}
+.word {
+  display: inline-block;
+}
+.tab {
+}
+.tab-line {
+  max-width: 4px;
+  display: inline-block;
+  word-wrap: break-word;
+  padding-bottom: 20px;
+}
