@@ -287,7 +287,7 @@ const SongRender = (props: Props) => {
 
   return (
     <div className={`chord-sheet ${FONT_SIZE_MAPPING[fontSize]}`}>
-      <div>{renderSong()}</div>
+      {renderSong()}
     </div>
   );
 };

@@ -11,11 +11,11 @@
 }
 
 .meta-label {
-  @apply text-gray-500 inline-block w-1/12 break-words align-top capitalize;
+  @apply text-gray-500 inline-block break-words align-top capitalize w-1/4 sm:w-1/4 md:w-1/6 lg:w-1/12;
 }
 
 .meta-value {
-  @apply text-green-500 inline-block w-11/12;
+  @apply text-green-500 inline-block w-3/4 sm:w-3/4 md:w-5/6 lg:w-11/12;
 }
 
 .comment {
@@ -23,7 +23,7 @@
 }
 
 .row {
-  @apply flex min-h-[1.5em] leading-[1.5];
+  @apply flex flex-wrap;
 }
 
 .column {
@@ -43,12 +43,12 @@
 }
 
 .chord:not(:last-child) {
-  padding-right: 10px; /* Custom padding */
+  padding-right: 0.5em;
 }
 
 .chord:after,
 .lyrics:after {
-  content: "\200b"; /* Zero-width space */
+  content: "\200b";
 }
 
 .tab {
