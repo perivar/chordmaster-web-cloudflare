@@ -88,10 +88,9 @@ body {
   position: relative;
   display: inline-block;
   padding-top: 20px;
-  /* width: 0px; */
+  width: 0px;
   top: -17px;
   cursor: pointer;
-  /* margin-left: 50px; */
 }
 .chord:hover {
   color: #0064c0;
