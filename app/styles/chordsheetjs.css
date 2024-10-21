@@ -57,6 +57,10 @@
   content: "\200b";
 }
 
+.lyrics {
+  @apply whitespace-pre-wrap;
+}
+
 .paragraph {
   @apply mb-4;
 }
