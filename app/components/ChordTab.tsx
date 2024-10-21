@@ -1,7 +1,6 @@
 import { FunctionComponent, useEffect, useRef } from "react";
-import { getChordAsString } from "~/utils/getChordAsString";
-import { getChordInformationTonal } from "~/utils/getChordInformationTonal";
-import { getChordSymbolTonal } from "~/utils/getChordSymbolTonal";
+import { getChordInformation } from "~/utils/getChordInformation";
+import { getChordSymbol } from "~/utils/getChordSymbol";
 import {
   getNotesChordAlternatives,
   NotesChordAlternatives,
@@ -9,7 +8,6 @@ import {
 import { Chord } from "chordsheetjs";
 import { Midi } from "tonal";
 
-import { getChordInformation } from "../utils/getChordInformation";
 import ChordChart from "./ChordChart";
 import { MyDrawer } from "./MyDrawer";
 import { Button } from "./ui/button";
@@ -72,7 +70,7 @@ const getChordMap = (jsonData: GuitarChords) => {
   // Helper function to handle sharp/flat equivalences
   const addChordToMap = (chord: ChordElement, key: string, suffix: string) => {
     const combinedKey = `${key}${suffix}`;
-    const combinedKeyNew = getChordSymbolTonal(combinedKey);
+    const combinedKeyNew = getChordSymbol(combinedKey);
     chordMap.set(combinedKeyNew, chord);
   };
 
@@ -334,12 +332,12 @@ const ChordTab: FunctionComponent<Props> = ({
       {/* Scrollable Chord Area */}
       <div className="flex flex-row overflow-x-auto">
         {allChords.map((item, index) => {
-          const chordName = getChordAsString(item);
-          const selectedChordName = getChordAsString(selectedChord);
+          const chordName = getChordSymbol(item.toString());
+          const selectedChordName = getChordSymbol(selectedChord.toString());
           const isSelected = chordName === selectedChordName;
 
           let guitarChordLookup = chordName;
-          const lookupChordInfo = getChordInformationTonal(chordName);
+          const lookupChordInfo = getChordInformation(chordName);
 
           let guitarChord: ChordElement | undefined = undefined;
           if (lookupChordInfo.isChord) {

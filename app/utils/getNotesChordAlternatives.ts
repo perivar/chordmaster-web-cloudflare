@@ -1,4 +1,4 @@
-import { getChordAlternatives } from "./getChordAlternatives";
+import { getChordAlternativesTonal } from "./getChordAlternativesTonal";
 import { ChordInformation } from "./getChordInformation";
 
 export interface NotesChordAlternatives {
@@ -35,7 +35,7 @@ export const getNotesChordAlternatives = (
   }
 
   // lookup alternative chord names
-  const alternatives = getChordAlternatives(altChordNotes);
+  const alternatives = getChordAlternativesTonal(altChordNotes);
   if (alternatives.chordNames) {
     notesChordAlternatives.chordNames = alternatives.chordNames;
   }

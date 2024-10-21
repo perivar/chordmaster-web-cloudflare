@@ -3,7 +3,6 @@
 import { MetaFunction } from "@remix-run/cloudflare";
 import { useParams } from "@remix-run/react";
 import { useAppContext } from "~/context/AppContext";
-import { useTranslation } from "react-i18next";
 
 import Header from "~/components/Header";
 import SortableSongList from "~/components/SortableSongList";
@@ -14,7 +13,6 @@ export const meta: MetaFunction = () => [
 ];
 
 export default function ArtistView() {
-  const { t } = useTranslation();
   const params = useParams();
   const artistIdParam = params?.id;
 

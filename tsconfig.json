@@ -13,6 +13,7 @@
       "@remix-run/cloudflare",
       "vite/client",
       "@cloudflare/workers-types/2023-07-01",
+      "jest",
       "./app/lib/types/chord-symbol.d.ts"
     ],
     "isolatedModules": true,

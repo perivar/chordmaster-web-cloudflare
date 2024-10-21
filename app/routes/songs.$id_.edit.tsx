@@ -11,7 +11,7 @@ import {
 import { useFirebase } from "~/context/FirebaseContext";
 import CustomUltimateGuitarFormatter from "~/utils/CustomUltimateGuitarFormatter";
 import CustomUltimateGuitarParser from "~/utils/CustomUltimateGuitarParser";
-import { getChordAlternatives } from "~/utils/getChordAlternatives";
+import { getChordAlternativesTonal } from "~/utils/getChordAlternativesTonal";
 import { getChordSymbol } from "~/utils/getChordSymbol";
 import ChordSheetJS from "chordsheetjs";
 import {
@@ -169,7 +169,7 @@ export default function SongEdit() {
         // console.log('chordNotes', chordNotes);
 
         // lookup alternative chord names
-        const alternatives = getChordAlternatives(chordNotes);
+        const alternatives = getChordAlternativesTonal(chordNotes);
         const chordNames = alternatives.chordNames;
         // console.log('chordNames', chordNames);
 

@@ -12,3 +12,4 @@ serviceAccountKey.json
 firebase-config.json
 scripts/download-file.js
 public/service-worker.js
+coverage

@@ -49,7 +49,7 @@
 }
 
 .chord:not(:last-child) {
-  @apply pr-0.5;
+  @apply pr-2;
 }
 
 .chord:after,

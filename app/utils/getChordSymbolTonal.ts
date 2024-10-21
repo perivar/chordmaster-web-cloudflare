@@ -1,6 +1,6 @@
 import { getChordInformationTonal } from "./getChordInformationTonal";
 
-export const getChordSymbolTonal = (chord: string) => {
+export const getChordSymbolTonal = (chord: string): string => {
   // use @tonaljs/tonal to parse and replace with new name
   const chordInfo = getChordInformationTonal(chord);
   if (chordInfo.isChord && chordInfo.chordName) {

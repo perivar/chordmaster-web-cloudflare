@@ -273,6 +273,7 @@ export default function SongView() {
                 fontSize={fontSize}
               /> */}
               <LinkButton
+                label={t("source")}
                 title={song?.external?.source}
                 url={song?.external?.url}
               />

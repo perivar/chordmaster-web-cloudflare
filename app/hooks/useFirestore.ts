@@ -240,6 +240,7 @@ const useFirestore = () => {
     getAllArtists,
     getArtistById,
     getArtistsByName,
+    updateSongsWithArtists,
 
     // song
     addNewSong,

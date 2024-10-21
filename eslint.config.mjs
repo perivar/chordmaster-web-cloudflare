@@ -1,7 +1,4 @@
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { fixupPluginRules } from "@eslint/compat";
-import { FlatCompat } from "@eslint/eslintrc";
 import eslintJs from "@eslint/js";
 import pluginImport from "eslint-plugin-import";
 import pluginJsxA11y from "eslint-plugin-jsx-a11y";
@@ -14,13 +11,6 @@ import pluginTailwind from "eslint-plugin-tailwindcss";
 import pluginUnusedImports from "eslint-plugin-unused-imports";
 import globals from "globals";
 import eslintTs from "typescript-eslint";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-  recommendedConfig: eslintJs.configs.recommended,
-});
 
 export default eslintTs.config(
   {
@@ -58,6 +48,16 @@ export default eslintTs.config(
     rules: {
       ...pluginReactRecommended.rules,
       ...pluginReactJSXRuntime.rules,
+      ...pluginReact.configs.recommended.rules,
+      ...pluginReactHooks.configs.recommended.rules,
+      ...pluginJsxA11y.configs.recommended.rules,
+      "react/jsx-uses-react": "off",
+      "react/react-in-jsx-scope": "off",
+      "react/self-closing-comp": "off",
+      "react/no-unstable-nested-components": ["warn", { allowAsProps: true }],
+      "react/prop-types": "off",
+      "jsx-a11y/html-has-lang": "off",
+      "jsx-a11y/heading-has-content": "off",
     },
     languageOptions: {
       ...pluginReactRecommended.languageOptions,
@@ -81,18 +81,6 @@ export default eslintTs.config(
       "import/resolver": {
         typescript: {},
       },
-    },
-    rules: {
-      ...pluginReact.configs.recommended.rules,
-      ...pluginReactHooks.configs.recommended.rules,
-      ...pluginJsxA11y.configs.recommended.rules,
-      "react/jsx-uses-react": "off",
-      "react/react-in-jsx-scope": "off",
-      "react/self-closing-comp": "off",
-      "react/no-unstable-nested-components": ["warn", { allowAsProps: true }],
-      "react/prop-types": "off",
-      "jsx-a11y/html-has-lang": "off",
-      "jsx-a11y/heading-has-content": "off",
     },
   },
   {

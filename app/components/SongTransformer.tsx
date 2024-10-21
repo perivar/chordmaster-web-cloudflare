@@ -1,4 +1,5 @@
 import { FunctionComponent } from "react";
+import { getChordSheetJSChord } from "~/utils/getChordSheetJSChord";
 import ChordSheetJS, {
   Chord,
   ChordLyricsPair,
@@ -14,6 +15,8 @@ import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 
 // have to copy this from the chordsheetjs main.d.ts since it's not exported
 type Item = ChordLyricsPair | Comment | Tag | Ternary | Literal;
+
+type ChordProcessor = (chord: Chord) => Chord;
 
 interface SongProps {
   chords: Chord[];
@@ -50,13 +53,13 @@ const showErrorMessage = (area: string, e: Error): JSX.Element | null => {
   return null; // Return null if `e` is not an instance of `Error`
 };
 
-const processChord = (item: Item, processor: (parsedChord: Chord) => Chord) => {
+const processChord = (item: Item, chordProcessor: ChordProcessor) => {
   if (item instanceof ChordSheetJS.ChordLyricsPair) {
     if (item.chords) {
-      const parsedChord = ChordSheetJS.Chord.parse(item.chords);
+      const parsedChord = getChordSheetJSChord(item.chords);
 
       if (parsedChord) {
-        const processedChord = processor(parsedChord);
+        const processedChord = chordProcessor(parsedChord);
 
         // return a ChordLyricsPair where the chords have been processed
         const processedChordLyricsPair = item.clone();
@@ -64,29 +67,14 @@ const processChord = (item: Item, processor: (parsedChord: Chord) => Chord) => {
         return processedChordLyricsPair;
       }
     }
-  } else if (item instanceof ChordSheetJS.Comment && item.content) {
-    // check if the comment also contains chords
-    // let commentSong = new ChordProParser().parse(item.content);
-    // commentSong = transformSong(commentSong, processor);
-    // item.content = new ChordProFormatter().format(commentSong);
-  } else if (item instanceof ChordSheetJS.Tag && item.name) {
-    // ignore
-  } else {
-    console.log(
-      "processChord -> neither chord, tag or comment:",
-      item.toString()
-    );
   }
 
   return item;
 };
 
-const transformSong = (
-  song: Song,
-  processor: (parsedChord: Chord) => Chord
-) => {
+const transformSong = (song: Song, chordProcessor: ChordProcessor) => {
   song.lines = song.lines.map(line => {
-    const items = line.items.map(item => processChord(item, processor));
+    const items = line.items.map(item => processChord(item, chordProcessor));
     line.items = items;
     return line;
   });
@@ -94,7 +82,8 @@ const transformSong = (
 };
 
 export const transposeSong = (song: Song, transposeDelta: number) => {
-  const transformedSong = transformSong(song, chord => {
+  // method to transpose and normalize the chord
+  const chordTransposer = (chord: Chord): Chord => {
     let transformedChord = chord.transpose(transposeDelta);
 
     // Normalizes the chord root and bass notes:
@@ -110,8 +99,9 @@ export const transposeSong = (song: Song, transposeDelta: number) => {
     });
 
     return transformedChord;
-  });
+  };
 
+  const transformedSong = transformSong(song, chordTransposer);
   return transformedSong;
 };
 
@@ -122,7 +112,7 @@ export const getChords = (song: Song): Chord[] => {
     line.items.forEach(item => {
       if (item instanceof ChordSheetJS.ChordLyricsPair) {
         if (item.chords) {
-          const parsedChord = ChordSheetJS.Chord.parse(item.chords);
+          const parsedChord = getChordSheetJSChord(item.chords);
 
           if (parsedChord) {
             // only add chord if not already exists
@@ -131,29 +121,9 @@ export const getChords = (song: Song): Chord[] => {
             }
           } else {
             // warning, we cannot parse this chord
-            console.log("Warning could not parse chord:", item.chords);
+            console.warn("Warning could not parse chord:", item.chords);
           }
         }
-      } else if (item instanceof ChordSheetJS.Comment && item.content) {
-        // remove html stuff like %20
-        let commentCleaned = item.content;
-        commentCleaned = commentCleaned.replace(/%\d{2}/g, "");
-
-        const commentSong = new ChordSheetJS.ChordProParser().parse(
-          commentCleaned
-        );
-        getChords(commentSong).forEach(c => {
-          if (!allChords.some(ac => ac.toString() === c.toString())) {
-            allChords.push(c);
-          }
-        });
-      } else if (item instanceof ChordSheetJS.Tag && item.name) {
-        // ignore
-      } else {
-        console.log(
-          "getChords -> neither chord, tag or comment:",
-          item.toString()
-        );
       }
     });
   });
@@ -180,9 +150,9 @@ const SongTransformer: FunctionComponent<Props> = props => {
       }
       song = new ChordSheetJS.ChordProParser().parse(chordProSong);
     } else {
-      song = new ChordSheetJS.ChordSheetParser({
-        preserveWhitespace: true,
-      }).parse(props.chordSheetSong!);
+      song = new ChordSheetJS.ChordsOverWordsParser().parse(
+        props.chordSheetSong!
+      );
     }
   } catch (e) {
     if (e instanceof Error) {
@@ -196,9 +166,10 @@ const SongTransformer: FunctionComponent<Props> = props => {
   let transposedSong = song;
 
   try {
-    if (transposeDelta !== 0) {
-      transposedSong = transposeSong(song, transposeDelta);
-    }
+    // always do the transpose method, to ensure the chords are checked (and repaired) before returning
+    // if (transposeDelta !== 0) {
+    transposedSong = transposeSong(song, transposeDelta);
+    // }
   } catch (e) {
     if (e instanceof Error) {
       console.error(e.message);
@@ -220,7 +191,6 @@ const SongTransformer: FunctionComponent<Props> = props => {
   }
 
   try {
-    // formattedSong = new CustomHtmlDivFormatter().format(transposedSong, fontSize);
     formattedSong = transposedSong;
   } catch (e) {
     if (e instanceof Error) {

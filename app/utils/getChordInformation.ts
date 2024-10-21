@@ -37,7 +37,10 @@ export interface ChordInformation {
   error: unknown;
 }
 
-export const getChordInformation = (value: string): ChordInformation => {
+export const getChordInformation = (
+  value: string,
+  simplify?: boolean
+): ChordInformation => {
   let isChord: boolean = false;
   let chordName: string = value;
 
@@ -60,7 +63,11 @@ export const getChordInformation = (value: string): ChordInformation => {
       intervals = chord.normalized?.intervals ?? [];
 
       // render chord name using chord-symbol
-      chordName = renderChord(chord);
+      if (simplify) {
+        chordName = renderChordSimple(chord);
+      } else {
+        chordName = renderChord(chord);
+      }
     } else if ((maybeChord as ChordParseFailure).error) {
       const chordError = maybeChord as ChordParseFailure;
       error = chordError.error;
@@ -98,4 +105,10 @@ const parseChord = chordParserFactory({
 const renderChord = chordRendererFactory({
   customFilters: [chordSymbolUltimateGuitarRenderer],
   useShortNamings: true,
+});
+
+const renderChordSimple = chordRendererFactory({
+  customFilters: [chordSymbolUltimateGuitarRenderer],
+  useShortNamings: true,
+  simplify: "core",
 });

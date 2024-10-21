@@ -5,7 +5,7 @@ export interface ChordAlternatives {
   error: unknown;
 }
 
-export const getChordAlternatives = (
+export const getChordAlternativesTonal = (
   chordNotes: string[]
 ): ChordAlternatives => {
   let chordNames: string[] = [];

@@ -18,12 +18,14 @@ export const getChordInformationTonal = (value: string): ChordInformation => {
     const chordTonal = ChordTonal.get(chordName);
     if (!chordTonal.empty) {
       isChord = true;
-      rootNote = chordTonal.root;
+      rootNote = chordTonal.tonic ?? chordTonal.root;
       bassNote = chordTonal.bass;
       notes = chordTonal.notes;
       intervals = chordTonal.intervals;
 
-      // Construct the chordName using aliases, tonic, and bass note
+      // the default chord name is stored in the symbol object,
+      // but uses names that are not optimally named.
+      // therefore construct the chordName using aliases, tonic, and bass note instead
       const { aliases, tonic, symbol, bass } = chordTonal;
 
       if (aliases?.[0]) {
@@ -40,15 +42,17 @@ export const getChordInformationTonal = (value: string): ChordInformation => {
       }
 
       chordName = chordSymbolUltimateGuitarRenderer(chordName);
-    }
 
-    // normalize note names
-    // like Fb to E and C## to D
-    // tonal calls this simplify
-    notes = notes.map(note => {
-      const normalizedChord = NoteTonal.simplify(note);
-      return normalizedChord;
-    });
+      // normalize note names
+      // like Fb to E and C## to D
+      // tonal calls this simplify
+      notes = notes.map(note => {
+        const normalizedChord = NoteTonal.simplify(note);
+        return normalizedChord;
+      });
+    } else {
+      throw new Error("Cannot parse chord: " + chordName);
+    }
   } catch (e) {
     error = e;
   }
