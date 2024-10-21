@@ -971,3 +971,92 @@ Ver-[G]den var[D/F#] al-dri h[F#]elt for-l[Bm]att
 {comment: Outro}
 [Ab]For dette b[Eb]arn har [G]himm-len [Cm]med
 [Ab]Og jor-[Eb/Bb]den fylles [Bb7]med s[Ab]an[Eb]`;
+
+export const desperadoChordsChordPro = `Desperado - Eagles
+
+{comment: Chords used}
+        +[E]--[A]--[D]--[G]--[B]---+
+A7       x 0 2 0 2 0
+Am7      x 0 2 0 1 0
+Am7add11 x 0 0 0 1 0
+Baug     x 2 1 0 0 3
+B7       x 2 1 2 0 2
+C        x 3 2 0 1 0
+Cm       x 3 5 5 4 3
+D        x 0 0 2 3 2
+D7       x x 0 2 1 2
+Dm7add11 x x 0 0 1 1
+Em       0 2 2 0 0 0
+Em7      0 2 2 0 3 0
+G        3 x 0 0 0 3
+Gadd11   3 2 0 0 1 3
+G7/D     x x 0 0 3 1  (no3)
+G7       3 x 0 0 0 1
+        +-----------+
+
+{comment: Piano intro}
+(tabbed for guitar)
+{start_of_tab}
+e|--------10----10h12-10----------------------|
+B|--10h12----12----------12-----------8h10-8--|
+G|--------------------------12-9-12-9---------|
+D|--------------------------------------------|
+A|--------------------------------------------|
+E|--------------------------------------------|
+{end_of_tab}
+
+{start_of_tab}
+e|------------------------------|
+B|------------------------------|
+G|--------7---7h9-7-------------|
+D|--5-7/9---9--------9-9-7-5-7--|
+A|------------------------------|
+E|------------------------------|
+{end_of_tab}
+
+{comment: Intro}
+[G][G7/D][C][Cm][G][Em7][A7][D]
+
+{comment: Verse 1}
+Despe[G]rado[Dm7add11], why don't you [C]come to your s[Cm]enses?
+You been [G]out ridin' fe[Em7]nces for [A7]so long no[D7]w
+Oh, you're a [G]hard one[G(11)], I know that [C]you got your reasons,[Cm]
+These [G]things that [B7]are pl[Em7]easin' you can [A7]hurt you [D7]somehow[G][D/F#]
+
+{comment: Chorus}
+Don't you [Em]draw the queen of [Bm]diamonds boy,
+She'll [C]beat you if she's abl[G]e,
+You know the [Em7]queen of hearts is [C]always your best [G]bet[D/G][D/F#]
+Now it [Em]seems to me some [Bm]fine things have been [C]laid upon your [G]table
+But you [Em]only want the [A7]ones you can't [Am7]get
+
+{comment: Verse 2}
+[D]Despe[G]rado[Dm7add11], oh you ain't [C]gettin' no younger,
+Your [G]pain and your h[Em7]unger, they're [A7]drivin' you h[D7]ome
+And [G]freedom[Dm7add11], well, that's just [C]some people talkin'
+Your [G]prison [B7]is w[Em7]alkin' through this [A7]world all [D7]alone[G][D/F#]
+
+{comment: Chorus}
+Don't your [Em]feet get cold in the [Bm]winter time?
+The [C]sky won't snow and the [G]sun won't shine
+It's [Em7]hard to tell the [C]night time from the [G]day[D/F#]
+You're [Em]losin' all your [Bm]highs and lows
+Ain't it [C]funny how the [G]feelin' goes a[Am7]way[Am7add11][D]
+
+{comment: Verse 3}
+Despe[G]rado[Dm7add11], why don't you [C]come to your se[Cm]nses
+Come [G]down from [D/F#]your f[Em]ences[A7], open the gate[D7]
+It may be [G]rainin'[G7],  but there's a [C]rainbow above you[Cm]
+You better [G]let some[B7]body l[Em]ove you ([C]let some[G/B]body l[Am7]ove you)
+You better [G]let some[B7]body l[Em]ove you be[D]fore it's too [G]late
+
+{comment: Outro}
+[G][G7/D][C][Cm][G]
+
+
+************************************
+
+| h  Hammer-on
+| /  Slide up
+
+************************************`;
