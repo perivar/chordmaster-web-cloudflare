@@ -87,7 +87,7 @@ export const getChordInformation = (
   };
 };
 
-const chordSymbolUltimateGuitarRenderer = (chord: Chord) => {
+export const chordSymbolUltimateGuitarRenderer = (chord: Chord) => {
   chord.formatted.symbol = chord.formatted.symbol
     .replace(/[(), ]/g, "") // Remove unwanted characters like parentheses, commas, and spaces
     .replace(/mM(?!aj)/g, "mMaj") // Ensure "mM" gets replaced with "mMaj" only when it's not already "mMaj"

@@ -136,9 +136,8 @@ const SongTransformer: FunctionComponent<Props> = props => {
 
   let { chordProSong } = props;
 
-  let formattedSong: Song;
-  let allChords: Chord[];
   let song: Song;
+  let allChords: Chord[];
 
   try {
     if (chordProSong) {
@@ -157,7 +156,7 @@ const SongTransformer: FunctionComponent<Props> = props => {
   } catch (e) {
     if (e instanceof Error) {
       console.error(e.message);
-      return showErrorMessage("Parser", e);
+      return showErrorMessage("ChordSheetJS Parser", e);
     } else {
       throw e;
     }
@@ -190,18 +189,7 @@ const SongTransformer: FunctionComponent<Props> = props => {
     }
   }
 
-  try {
-    formattedSong = transposedSong;
-  } catch (e) {
-    if (e instanceof Error) {
-      console.error(e.message);
-      return showErrorMessage("Formatter", e);
-    } else {
-      throw e;
-    }
-  }
-
-  return props.children({ chords: allChords, transformedSong: formattedSong });
+  return props.children({ chords: allChords, transformedSong: transposedSong });
 };
 
 export default SongTransformer;

@@ -1,7 +1,7 @@
 import { FunctionComponent } from "react";
+import { ChordElement, ChordPosition } from "~/utils/getGuitarChordMap";
 import { useTheme } from "remix-themes";
 
-import { ChordElement, ChordPosition } from "./ChordTab";
 import Chord from "./react-chords";
 
 interface Props {

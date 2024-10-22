@@ -1,6 +1,5 @@
 import { FunctionComponent, useEffect, useRef } from "react";
 import { getChordInformation } from "~/utils/getChordInformation";
-import { getChordSymbol } from "~/utils/getChordSymbol";
 import {
   ChordElement,
   getGuitarChordMap,
@@ -10,7 +9,6 @@ import {
   getNotesChordAlternatives,
   NotesChordAlternatives,
 } from "~/utils/getNotesChordAlternatives";
-import { Chord } from "chordsheetjs";
 
 import ChordChart from "./ChordChart";
 import { MyDrawer } from "./MyDrawer";
@@ -22,8 +20,8 @@ interface Props {
   showPiano: boolean;
   onShowChange: (checked: boolean) => void;
   showChangeLabel: string;
-  selectedChord: Chord | null | undefined;
-  allChords: Chord[];
+  selectedChord: string | null | undefined;
+  allChords: string[];
   onPressClose: () => void;
   closeLabel: string;
 }
@@ -51,7 +49,7 @@ const renderGuitarChord = (
   );
 };
 
-const ChordTab: FunctionComponent<Props> = ({
+const MyChordTab: FunctionComponent<Props> = ({
   guitarChords,
   showPiano,
   onShowChange,
@@ -65,9 +63,7 @@ const ChordTab: FunctionComponent<Props> = ({
 
   useEffect(() => {
     if (selectedChord) {
-      const index = allChords.findIndex(
-        chord => chord.toString() === selectedChord.toString()
-      );
+      const index = allChords.findIndex(chord => chord === selectedChord);
 
       // Delay scroll until DOM is updated
       if (columnRefs.current[index]) {
@@ -99,8 +95,8 @@ const ChordTab: FunctionComponent<Props> = ({
       {/* Scrollable Chord Area */}
       <div className="flex flex-row overflow-x-auto">
         {allChords.map((item, index) => {
-          const chordName = getChordSymbol(item.toString());
-          const selectedChordName = getChordSymbol(selectedChord.toString());
+          const chordName = item;
+          const selectedChordName = selectedChord;
           const isSelected = chordName === selectedChordName;
 
           // keep track of what chord and the lookup value we are using to lookup the guitar tab
@@ -168,4 +164,4 @@ const ChordTab: FunctionComponent<Props> = ({
   );
 };
 
-export default ChordTab;
+export default MyChordTab;

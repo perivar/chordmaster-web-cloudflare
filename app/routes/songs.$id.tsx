@@ -17,7 +17,7 @@ import { editSongReducer, useAppContext } from "~/context/AppContext";
 import { readDataFileFromUrl } from "~/files.server";
 import clamp from "~/utils/clamp";
 import { getChordPro } from "~/utils/getChordPro";
-import { Chord } from "chordsheetjs";
+import { GuitarChords } from "~/utils/getGuitarChordMap";
 import {
   ChevronDown,
   ChevronUp,
@@ -43,16 +43,17 @@ import {
 } from "~/components/ui/sheet";
 import { Switch } from "~/components/ui/switch";
 import { useToast } from "~/components/ui/use-toast";
-import ChordTab, { GuitarChords } from "~/components/ChordTab";
 import LinkButton from "~/components/LinkButton";
 import LoadingIndicator from "~/components/LoadingIndicator";
+import MyChordTab from "~/components/MyChordTab";
+import MySongRender from "~/components/MySongRender";
+import MySongTransformer from "~/components/MySongTransformer";
 import SelectPlaylist from "~/components/SelectPlaylist";
-import SongRender, {
+import {
   FONT_SIZES,
   MAX_FONT_SIZE,
   MIN_FONT_SIZE,
 } from "~/components/SongRender";
-import SongTransformer from "~/components/SongTransformer";
 import styles from "~/styles/chordsheetjs.css?url";
 
 // originally from: https://github.com/artutra/OpenChord/tree/master/app/assets/chords
@@ -121,7 +122,7 @@ export default function SongView() {
   const [transpose, setTranspose] = useState<number>(0);
   // const [showAutoScrollSlider, setShowAutoScrollSlider] = useState(false);
   const [scrollSpeed, _setScrollSpeed] = useState<number>(0);
-  const [selectedChord, setSelectedChord] = useState<Chord | null>(null);
+  const [selectedChord, setSelectedChord] = useState<string | null>(null);
   const [showPlaylistSelection, setShowPlaylistSelection] = useState(false);
   const [showPiano, setShowPiano] = useState(true);
 
@@ -164,8 +165,8 @@ export default function SongView() {
     }
   };
 
-  const onClickChord = (allChords: Chord[], chordString: string) => {
-    const foundChord = allChords.find(c => c.toString() === chordString);
+  const onClickChord = (allChords: string[], chordString: string) => {
+    const foundChord = allChords.find(c => c === chordString);
     if (foundChord) {
       setSelectedChord(foundChord);
     } else {
@@ -252,13 +253,13 @@ export default function SongView() {
       </div>
       {/* Main content (song sheet) */}
       <div className="size-full pb-96">
-        <SongTransformer
+        <MySongTransformer
           chordProSong={content}
           transposeDelta={transpose}
           showTabs={showTabs}>
           {songProps => (
             <div className="flex flex-col pb-6 pl-6 font-mono">
-              <SongRender
+              <MySongRender
                 onPressArtist={onPressArtist}
                 onPressChord={chordString =>
                   onClickChord(songProps.chords, chordString)
@@ -277,7 +278,7 @@ export default function SongView() {
                 title={song?.external?.source}
                 url={song?.external?.url}
               />
-              <ChordTab
+              <MyChordTab
                 guitarChords={data.chords}
                 showPiano={showPiano}
                 onShowChange={setShowPiano}
@@ -296,7 +297,7 @@ export default function SongView() {
               />
             </div>
           )}
-        </SongTransformer>
+        </MySongTransformer>
       </div>
 
       {/* Right panel (Sheet component for overlay) */}
