@@ -118,7 +118,7 @@ const SongRender = (props: Props) => {
     // use css to handle top or bottom alignment if one of them is missing
     return (
       <div className="column" key={key}>
-        {chordName && (
+        {chordName ? (
           <div
             role="button"
             tabIndex={0}
@@ -127,8 +127,10 @@ const SongRender = (props: Props) => {
             onClick={() => handleChordClick(chordName)}>
             {chordName}
           </div>
+        ) : (
+          <div className="chord"></div>
         )}
-        {lyrics && <div className="lyrics">{lyrics}</div>}
+        {<div className="lyrics">{lyrics}</div>}
       </div>
     );
   };

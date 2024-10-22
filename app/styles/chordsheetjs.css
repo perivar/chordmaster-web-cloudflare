@@ -1,74 +1,90 @@
+/* Apply a monospaced font to the entire chord sheet for consistent alignment of chords and lyrics */
 .chord-sheet {
   @apply font-mono;
 }
 
+/* Style the title with extra bold font weight */
 .title {
   @apply font-extrabold;
 }
 
+/* Style the artist name: block display, normal weight, clickable with underline on hover,
+   and apply muted text color with bottom margin */
 .artist {
   @apply block font-normal cursor-pointer hover:underline mb-2 text-muted-foreground;
 }
 
+/* Style for metadata labels (e.g., key, tempo): gray color, inline-block, 
+   with word-breaks, aligned to the top, and fixed width across different screen sizes */
 .meta-label {
   @apply text-gray-500 inline-block break-words align-top capitalize w-1/4 sm:w-1/4 md:w-1/6 lg:w-1/12;
 }
 
+/* Style for metadata values (e.g., the actual key or tempo): green color, 
+   inline-block, and takes up the remaining width of the row across screen sizes */
 .meta-value {
   @apply text-green-500 inline-block w-3/4 sm:w-3/4 md:w-5/6 lg:w-11/12;
 }
 
+/* Style for comments in the chord sheet: primary color, bold font, and block display */
 .comment {
   @apply text-primary font-semibold block;
 }
 
+/* Set up a flexible row container that wraps its children and has a minimum height of 1.5em */
 .row {
   @apply flex flex-wrap min-h-[1.5em];
 }
 
+/* Set the column inside a row to stack its content vertically */
 .column {
   @apply flex flex-col;
 }
 
-/* Top align the "chord" div when it's the only child */
-.column > .chord:only-child {
-  @apply mr-2 justify-start;
+/* Ensure all lines that have only one column, and where there is no chord, 
+   take up zero space without being hidden */
+.row .column:only-child .chord:empty {
+  @apply block h-0;
 }
 
-/* Bottom align the "lyrics" div when it's the only child */
-.column > .lyrics:only-child {
-  @apply mt-auto; /* 'mt-auto' pushes the element to the bottom */
-}
-
+/* Apply red text color to chord elements */
 .chord {
   @apply text-red-500;
 }
 
+/* Underline chord when hovered */
 .chord:hover {
   @apply underline;
 }
 
+/* Add padding to the right of the chord unless it is the last chord in the sequence */
 .chord:not(:last-child) {
   @apply pr-2;
 }
 
+/* Add a zero-width space after each chord and lyrics to prevent collapsing of lines */
 .chord:after,
 .lyrics:after {
-  content: "\200b";
+  content: "\200b"; /* Zero-width space */
 }
 
+/* Ensure lyrics preserve spaces and wrap properly when necessary */
 .lyrics {
   @apply whitespace-pre-wrap;
 }
 
+/* Add bottom margin to paragraph elements */
 .paragraph {
   @apply mb-4;
 }
 
+/* Add top margin to tab elements */
 .tab {
   @apply mt-6;
 }
 
+/* Make tab-line elements display inline-block, limit their width, 
+     allow word breaking, and add bottom padding */
 .tab-line {
   @apply inline-block max-w-3 break-words pb-5;
 }
