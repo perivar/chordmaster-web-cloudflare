@@ -1,6 +1,4 @@
-// https://v0.dev/chat/RVaUfCf5axe
-
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent } from "react";
 import { flexRender, Table as TanTable } from "@tanstack/react-table";
 import { ChevronDown, ChevronUp, X } from "lucide-react";
 
@@ -25,24 +23,20 @@ interface ListItem {
 
 interface ListProps<T extends ListItem> {
   table: TanTable<T>;
-  onFilterChange: (itemFilter: string) => void;
+  filterValue: string;
+  onFilterChange: (filterValue: string) => void;
   placeholder?: string;
 }
 
 export default function SortableList<T extends ListItem>({
   table,
+  filterValue,
   onFilterChange,
   placeholder = "Search",
 }: ListProps<T>) {
-  const [itemFilter, setItemFilter] = useState("");
-
-  useEffect(() => {
-    onFilterChange(itemFilter);
-  }, [itemFilter]);
-
   const handleFilterChange = (e: ChangeEvent<HTMLInputElement>) => {
     const filterQuery = e.target.value;
-    setItemFilter(filterQuery);
+    onFilterChange(filterQuery);
   };
 
   return (
@@ -51,16 +45,16 @@ export default function SortableList<T extends ListItem>({
         <div className="relative w-full max-w-md py-2">
           <Input
             placeholder={placeholder}
-            value={itemFilter}
+            value={filterValue}
             onChange={handleFilterChange}
             className="w-full pr-10"
           />
-          {itemFilter && (
+          {filterValue && (
             <Button
               variant="ghost"
               size="sm"
               className="absolute right-2 top-1/2 -translate-y-1/2 p-0"
-              onClick={_ => setItemFilter("")}>
+              onClick={_ => onFilterChange("")}>
               <X className="size-4 text-muted-foreground" />
               <span className="sr-only">Clear filter</span>
             </Button>

@@ -1,13 +1,16 @@
 // https://v0.dev/chat/RVaUfCf5axe
 
 import { useMemo, useState } from "react";
-import { Link, useNavigate } from "@remix-run/react";
+import { Link, useNavigate, useSearchParams } from "@remix-run/react";
 import {
   ColumnDef,
   getCoreRowModel,
+  getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  PaginationState,
   SortingState,
+  Updater,
   useReactTable,
 } from "@tanstack/react-table";
 import { deleteSongReducer, useAppContext } from "~/context/AppContext";
@@ -39,35 +42,113 @@ export type CustomColumnDef<TData, TValue = unknown> = ColumnDef<
 };
 
 interface ListProps {
-  allItems: ISong[];
+  initialData: ISong[];
+  initialPage?: number;
+  initialPageSize?: number;
+  initialFilter?: string;
+  initialSortBy?: string;
+  initialSortOrder?: string;
 }
 
-export default function SortableSongList({ allItems }: ListProps) {
+export default function SortableSongList({
+  initialData,
+  initialPage = 0,
+  initialPageSize = 10,
+  initialFilter = "",
+  initialSortBy = "",
+  initialSortOrder = "asc",
+}: ListProps) {
   const { t } = useTranslation();
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [songs, setSongs] = useState<ISong[]>(allItems);
-  const confirm = useConfirm();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+
+  const [songs, setSongs] = useState<ISong[]>(initialData);
+
+  // pagination, sorting and filtering support
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: initialPage,
+    pageSize: initialPageSize,
+  });
+  const [globalFilter, setGlobalFilter] = useState<string>(initialFilter);
+  const [sorting, setSorting] = useState<SortingState>([
+    {
+      id: initialSortBy,
+      desc: initialSortOrder === "desc",
+    },
+  ]);
+
+  const confirm = useConfirm();
   const { toast } = useToast();
   const { deleteSong } = useFirestore();
   const { dispatch } = useAppContext();
 
-  const onFilterChange = useMemo(
-    () => (itemFilter: string) => {
-      if (itemFilter !== "") {
-        const filteredItems = allItems.filter(
-          s =>
-            s.title.toLowerCase().includes(itemFilter.toLowerCase()) ||
-            s.artist.name.toLowerCase().includes(itemFilter.toLowerCase())
-        );
-        setSongs(filteredItems);
-      } else {
-        // reset query
-        setSongs(allItems);
-      }
-    },
-    [allItems]
-  );
+  const updateSearchParams = (
+    paginationState: PaginationState,
+    sortingState: SortingState,
+    filterState: string
+  ) => {
+    const params = new URLSearchParams(searchParams);
+
+    // Pagination
+    if (paginationState) {
+      params.set("page", paginationState.pageIndex.toString());
+      params.set("pageSize", paginationState.pageSize.toString());
+    } else {
+      params.delete("page");
+      params.delete("pageSize");
+    }
+
+    // Sorting
+    if (sortingState?.length > 0) {
+      params.set("sortBy", sortingState[0].id);
+      params.set("sortOrder", sortingState[0].desc ? "desc" : "asc");
+    } else {
+      params.delete("sortBy");
+      params.delete("sortOrder");
+    }
+
+    // Filter
+    if (filterState) {
+      params.set("filter", filterState);
+    } else {
+      params.delete("filter");
+    }
+
+    navigate(`?${params.toString()}`, { replace: true });
+  };
+
+  const doGlobalFilterChange = (filterValue: string) => {
+    setGlobalFilter(filterValue);
+
+    const currentPagination = table.getState().pagination;
+    const currentSorting = table.getState().sorting;
+
+    updateSearchParams(currentPagination, currentSorting, filterValue);
+  };
+
+  const doPaginationChange = (updater: Updater<unknown>) => {
+    const newPagination =
+      typeof updater === "function" ? updater(pagination) : updater;
+
+    setPagination(newPagination);
+
+    const currentSorting = table.getState().sorting;
+    const currentFilter = table.getState().globalFilter;
+
+    updateSearchParams(newPagination, currentSorting, currentFilter);
+  };
+
+  const doSortingChange = (updater: Updater<unknown>) => {
+    const newSorting =
+      typeof updater === "function" ? updater(sorting) : updater;
+
+    setSorting(newSorting);
+
+    const currentPagination = table.getState().pagination;
+    const currentFilter = table.getState().globalFilter;
+
+    updateSearchParams(currentPagination, newSorting, currentFilter);
+  };
 
   const columns = useMemo<CustomColumnDef<ISong>[]>(() => {
     const handleEdit = async (id: string | undefined) => {
@@ -95,7 +176,7 @@ export default function SortableSongList({ allItems }: ListProps) {
           });
 
           // reset query
-          setSongs(allItems);
+          setSongs(initialData);
           return navigate(`/songs`);
         }
       } catch (_err) {
@@ -122,7 +203,7 @@ export default function SortableSongList({ allItems }: ListProps) {
         ),
       },
       {
-        accessorKey: "artist",
+        accessorKey: "artist.name",
         header: t("artist_name"),
         hideOnMobile: true, // Custom field to hide this column on mobile
         cell: ({ row }) => (
@@ -177,24 +258,29 @@ export default function SortableSongList({ allItems }: ListProps) {
   const table = useReactTable({
     data: songs,
     columns,
-    onSortingChange: setSorting,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    initialState: {
-      pagination: {
-        pageSize: 10,
-      },
-    },
+
     state: {
+      pagination,
+      globalFilter,
       sorting,
     },
+
+    // call local methods to perform the changes
+    onGlobalFilterChange: doGlobalFilterChange,
+    onPaginationChange: doPaginationChange,
+    onSortingChange: doSortingChange,
+
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
   });
 
   return (
     <SortableList
       table={table}
-      onFilterChange={onFilterChange}
+      filterValue={globalFilter}
+      onFilterChange={doGlobalFilterChange}
       placeholder={t("search")}
     />
   );

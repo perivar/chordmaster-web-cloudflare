@@ -66,8 +66,24 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const locale = await i18next.getLocale(request);
   console.log("Locale: " + locale);
 
+  // get table sort, paging and filter params
+  const url = new URL(request.url);
+  const page = parseInt(url.searchParams.get("page") || "0", 10);
+  const pageSize = parseInt(url.searchParams.get("pageSize") || "10", 10);
+  const filter = url.searchParams.get("filter") || "";
+  const sortBy = url.searchParams.get("sortBy") || "";
+  const sortOrder = url.searchParams.get("sortOrder") || "asc";
+
   return json(
-    { theme, locale },
+    {
+      theme,
+      locale,
+      initialPage: page,
+      initialPageSize: pageSize,
+      initialFilter: filter,
+      initialSortBy: sortBy,
+      initialSortOrder: sortOrder,
+    },
     { headers: { "Set-Cookie": await localeCookie.serialize(locale) } }
   );
 }

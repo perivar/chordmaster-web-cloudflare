@@ -1,8 +1,9 @@
 // app/routes/songs._index.tsx
 
 import type { MetaFunction } from "@remix-run/cloudflare";
-import { useNavigate } from "@remix-run/react";
+import { useNavigate, useRouteLoaderData } from "@remix-run/react";
 import { useAppContext } from "~/context/AppContext";
+import { type loader as parentLoader } from "~/root";
 import { EarthIcon, PlusIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -16,6 +17,7 @@ export const meta: MetaFunction = () => {
 
 export default function SongsView() {
   const { t } = useTranslation();
+  const loaderData = useRouteLoaderData<typeof parentLoader>("root");
 
   const { state } = useAppContext();
   const songs = state.songs;
@@ -51,7 +53,14 @@ export default function SongsView() {
         ]}
       />
 
-      <SortableSongList allItems={songs} />
+      <SortableSongList
+        initialData={songs}
+        initialPage={loaderData?.initialPage}
+        initialPageSize={loaderData?.initialPageSize}
+        initialFilter={loaderData?.initialFilter}
+        initialSortBy={loaderData?.initialSortBy}
+        initialSortOrder={loaderData?.initialSortOrder}
+      />
     </div>
   );
 }

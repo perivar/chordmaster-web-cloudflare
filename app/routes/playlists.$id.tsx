@@ -2,8 +2,14 @@
 
 import { useState } from "react";
 import { MetaFunction } from "@remix-run/cloudflare";
-import { Link, useNavigate, useParams } from "@remix-run/react";
+import {
+  Link,
+  useNavigate,
+  useParams,
+  useRouteLoaderData,
+} from "@remix-run/react";
 import { deletePlaylistReducer, useAppContext } from "~/context/AppContext";
+import { type loader as parentLoader } from "~/root";
 import { Edit2Icon, PlusIcon, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -23,6 +29,8 @@ export default function PlaylistView() {
   const { t } = useTranslation();
   const params = useParams();
   const playlistIdParam = params?.id;
+
+  const loaderData = useRouteLoaderData<typeof parentLoader>("root");
 
   const navigate = useNavigate();
   const confirm = useConfirm();
@@ -98,7 +106,14 @@ export default function PlaylistView() {
         ]}
       />
 
-      <SortableSongList allItems={songs} />
+      <SortableSongList
+        initialData={songs}
+        initialPage={loaderData?.initialPage}
+        initialPageSize={loaderData?.initialPageSize}
+        initialFilter={loaderData?.initialFilter}
+        initialSortBy={loaderData?.initialSortBy}
+        initialSortOrder={loaderData?.initialSortOrder}
+      />
     </div>
   );
 }

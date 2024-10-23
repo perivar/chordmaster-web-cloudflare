@@ -2,16 +2,25 @@
 
 import { useMemo, useState } from "react";
 import { MetaFunction } from "@remix-run/cloudflare";
-import { Link } from "@remix-run/react";
+import {
+  Link,
+  useNavigate,
+  useRouteLoaderData,
+  useSearchParams,
+} from "@remix-run/react";
 import {
   ColumnDef,
   getCoreRowModel,
+  getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  PaginationState,
   SortingState,
+  Updater,
   useReactTable,
 } from "@tanstack/react-table";
 import { useAppContext } from "~/context/AppContext";
+import { type loader as parentLoader } from "~/root";
 import { MoreHorizontal } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -34,26 +43,98 @@ export const meta: MetaFunction = () => [
 
 export default function ArtistsView() {
   const { t } = useTranslation();
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+
+  const loaderData = useRouteLoaderData<typeof parentLoader>("root");
+  const initialPage = loaderData?.initialPage || 0;
+  const initialPageSize = loaderData?.initialPageSize || 10;
+  const initialFilter = loaderData?.initialFilter || "";
+  const initialSortBy = loaderData?.initialSortBy || "";
+  const initialSortOrder = loaderData?.initialSortOrder || "asc";
 
   const { state } = useAppContext();
-  const allItems = state.artists;
-  const [artists, setArtists] = useState<IArtist[]>(allItems);
 
-  const onFilterChange = useMemo(
-    () => (itemFilter: string) => {
-      if (itemFilter !== "") {
-        const filteredItems = allItems.filter(s =>
-          s.name.toLowerCase().includes(itemFilter)
-        );
-        setArtists(filteredItems);
-      } else {
-        // reset query
-        setArtists(allItems);
-      }
+  // pagination, sorting and filtering support
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: initialPage,
+    pageSize: initialPageSize,
+  });
+  const [globalFilter, setGlobalFilter] = useState<string>(initialFilter);
+  const [sorting, setSorting] = useState<SortingState>([
+    {
+      id: initialSortBy,
+      desc: initialSortOrder === "desc",
     },
-    [allItems]
-  );
+  ]);
+
+  const updateSearchParams = (
+    paginationState: PaginationState,
+    sortingState: SortingState,
+    filterState: string
+  ) => {
+    const params = new URLSearchParams(searchParams);
+
+    // Pagination
+    if (paginationState) {
+      params.set("page", paginationState.pageIndex.toString());
+      params.set("pageSize", paginationState.pageSize.toString());
+    } else {
+      params.delete("page");
+      params.delete("pageSize");
+    }
+
+    // Sorting
+    if (sortingState?.length > 0) {
+      params.set("sortBy", sortingState[0].id);
+      params.set("sortOrder", sortingState[0].desc ? "desc" : "asc");
+    } else {
+      params.delete("sortBy");
+      params.delete("sortOrder");
+    }
+
+    // Filter
+    if (filterState) {
+      params.set("filter", filterState);
+    } else {
+      params.delete("filter");
+    }
+
+    navigate(`?${params.toString()}`, { replace: true });
+  };
+
+  const doGlobalFilterChange = (filterValue: string) => {
+    setGlobalFilter(filterValue);
+
+    const currentPagination = table.getState().pagination;
+    const currentSorting = table.getState().sorting;
+
+    updateSearchParams(currentPagination, currentSorting, filterValue);
+  };
+
+  const doPaginationChange = (updater: Updater<unknown>) => {
+    const newPagination =
+      typeof updater === "function" ? updater(pagination) : updater;
+
+    setPagination(newPagination);
+
+    const currentSorting = table.getState().sorting;
+    const currentFilter = table.getState().globalFilter;
+
+    updateSearchParams(newPagination, currentSorting, currentFilter);
+  };
+
+  const doSortingChange = (updater: Updater<unknown>) => {
+    const newSorting =
+      typeof updater === "function" ? updater(sorting) : updater;
+
+    setSorting(newSorting);
+
+    const currentPagination = table.getState().pagination;
+    const currentFilter = table.getState().globalFilter;
+
+    updateSearchParams(currentPagination, newSorting, currentFilter);
+  };
 
   const columns = useMemo<ColumnDef<IArtist>[]>(
     () => [
@@ -100,20 +181,24 @@ export default function ArtistsView() {
   );
 
   const table = useReactTable({
-    data: artists,
+    data: state.artists,
     columns,
-    onSortingChange: setSorting,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    initialState: {
-      pagination: {
-        pageSize: 10,
-      },
-    },
+
     state: {
+      pagination,
+      globalFilter,
       sorting,
     },
+
+    // call local methods to perform the changes
+    onGlobalFilterChange: doGlobalFilterChange,
+    onPaginationChange: doPaginationChange,
+    onSortingChange: doSortingChange,
+
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
   });
 
   return (
@@ -122,7 +207,8 @@ export default function ArtistsView() {
 
       <SortableList
         table={table}
-        onFilterChange={onFilterChange}
+        filterValue={globalFilter}
+        onFilterChange={doGlobalFilterChange}
         placeholder={t("search")}
       />
     </div>
