@@ -23,7 +23,6 @@ export default function ArtistView() {
   const allSongs = state.songs;
   const allArtists = state.artists;
   const artist = allArtists.find(a => a.id === artistIdParam);
-
   const artistSongs = allSongs.filter(s => s.artist.id === artistIdParam);
 
   return (
