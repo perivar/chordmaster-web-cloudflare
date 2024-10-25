@@ -69,10 +69,10 @@
     "react-svg": "^16.1.34",
     "remix-i18next": "^6.4.1",
     "remix-themes": "^1.5.1",
+    "smplr": "^0.15.1",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
     "tonal": "^6.3.0",
-    "tone": "^15.0.4",
     "vaul": "^1.1.0",
     "yarn": "^1.22.22"
   },

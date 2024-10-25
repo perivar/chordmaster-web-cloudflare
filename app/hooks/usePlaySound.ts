@@ -1,118 +1,129 @@
 import { useCallback, useEffect, useState } from "react";
-import { Midi } from "tonal";
-import * as Tone from "tone";
+import { Soundfont } from "smplr";
+
+import { getAudioContext } from "./audio-context";
 
 type SoundType = "piano" | "guitar";
 
 type UsePlaySoundReturn = {
   playMidiNote: (midiNote: number) => void;
   playNote: (note: string) => void;
-  playChord: () => void;
-  playChordAndArp: () => void;
-  playChordAndArpFast: () => void;
+  playChord: (midiNotes: number[]) => void;
+  playChordAndArp: (midiNotes: number[]) => void;
+  playArpFastAndArp: (midiNotes: number[]) => void;
+  setInstrumentName: (name: SoundType) => void;
 };
 
-const usePlaySound = (
-  soundType: SoundType,
-  chordFreqs: number[]
-): UsePlaySoundReturn => {
-  const [sampler, setSampler] = useState<Tone.Sampler>();
+const usePlaySound = (): UsePlaySoundReturn => {
+  const [instrument, setInstrument] = useState<Soundfont | undefined>(
+    undefined
+  );
+  const [instrumentName, setInstrumentName] = useState<SoundType>("piano");
 
   useEffect(() => {
-    const newSampler = new Tone.Sampler({
-      urls:
-        soundType === "piano"
-          ? {
-              // Piano samples
-              C4: "C4.mp3",
-              "D#4": "Ds4.mp3",
-              "F#4": "Fs4.mp3",
-              A4: "A4.mp3",
-            }
-          : {
-              // Guitar samples
-              // E2: "guitar_LowEstring1.mp3",
-              A2: "guitar_Astring.mp3",
-              D3: "guitar_Dstring.mp3",
-              G3: "guitar_Gstring.mp3",
-              B3: "guitar_Bstring.mp3",
-              // E4: "guitar_highEstring.mp3",
-            },
-      baseUrl:
-        soundType === "piano"
-          ? "https://tonejs.github.io/audio/salamander/"
-          : "https://tonejs.github.io/audio/berklee/",
-    }).toDestination();
+    if (instrument) instrument.disconnect();
 
-    Tone.loaded().then(() => {
-      setSampler(newSampler);
+    const context = getAudioContext();
+
+    const newInstrument = new Soundfont(context, {
+      instrument:
+        instrumentName === "piano"
+          ? "acoustic_grand_piano"
+          : "acoustic_guitar_nylon", // acoustic_grand_piano, acoustic_guitar_nylon
+      kit: "FluidR3_GM", // MusyngKite (default), FluidR3_GM, FatBoy
     });
 
-    return () => {
-      newSampler.dispose();
-    };
-  }, [soundType]);
+    newInstrument.load.then(() => {
+      setInstrument(newInstrument);
+    });
+  }, [instrumentName]);
 
   const playMidiNote = useCallback(
     (midiNote: number) => {
-      if (sampler) {
-        const now = Tone.now();
-        const noteFreq = Midi.midiToFreq(midiNote);
-        sampler.triggerAttackRelease(noteFreq, "6n", now, 0.5);
+      if (instrument) {
+        instrument.stop();
+
+        const now = getAudioContext().currentTime;
+        instrument.start({
+          note: midiNote,
+          velocity: 80,
+          time: now,
+          duration: 0.5,
+        });
       }
     },
-    [sampler]
+    [instrument]
   );
 
   const playNote = useCallback(
     (note: string) => {
-      if (sampler) {
-        const now = Tone.now();
-        sampler.triggerAttackRelease(note, "6n", now, 0.5);
+      if (instrument) {
+        instrument.stop();
+
+        const now = getAudioContext().currentTime;
+        instrument.start({ note, velocity: 80, time: now, duration: 0.5 });
       }
     },
-    [sampler]
+    [instrument]
   );
 
-  const playChord = useCallback(() => {
-    if (sampler && chordFreqs.length > 0) {
-      const now = Tone.now();
-      sampler.triggerAttackRelease(chordFreqs, "4n", now, 0.5);
-    }
-  }, [chordFreqs, sampler]);
+  const playChord = useCallback(
+    (midiNotes: number[]) => {
+      if (instrument) {
+        instrument.stop();
 
-  const playChordAndArp = useCallback(() => {
-    if (sampler && chordFreqs.length > 0) {
-      const now = Tone.now();
+        const now = getAudioContext().currentTime;
+        midiNotes.forEach(note => {
+          instrument.start({ note, time: now, duration: 0.5 });
+        });
+      }
+    },
+    [instrument]
+  );
 
-      sampler.triggerAttackRelease(chordFreqs, "4n", now, 0.5);
+  const playChordAndArp = useCallback(
+    (midiNotes: number[]) => {
+      if (instrument) {
+        instrument.stop();
 
-      chordFreqs.forEach((freq, index) => {
-        sampler.triggerAttackRelease(freq, "6n", now + 1 + 0.5 * index, 0.5);
-      });
-    }
-  }, [chordFreqs, sampler]);
+        const now = getAudioContext().currentTime;
+        midiNotes.forEach(note => {
+          instrument.start({ note, time: now, duration: 0.5 });
+        });
 
-  const playChordAndArpFast = useCallback(() => {
-    if (sampler && chordFreqs.length > 0) {
-      const now = Tone.now();
+        midiNotes.forEach((note, i) => {
+          instrument.start({ note, time: now + 1 + i * 0.8, duration: 0.5 });
+        });
+      }
+    },
+    [instrument]
+  );
 
-      chordFreqs.forEach((freq, index) => {
-        sampler.triggerAttackRelease(freq, "4n", now + 0.1 * index, 0.5);
-      });
+  const playArpFastAndArp = useCallback(
+    (midiNotes: number[]) => {
+      if (instrument) {
+        instrument.stop();
 
-      chordFreqs.forEach((freq, index) => {
-        sampler.triggerAttackRelease(freq, "6n", now + 1 + 0.5 * index, 0.5);
-      });
-    }
-  }, [chordFreqs, sampler]);
+        const now = getAudioContext().currentTime;
+        midiNotes.forEach((note, i) => {
+          instrument.start({ note, time: now + i * 0.05, duration: 0.5 });
+        });
+
+        midiNotes.forEach((note, i) => {
+          instrument.start({ note, time: now + 1 + i * 0.8, duration: 0.5 });
+        });
+      }
+    },
+    [instrument]
+  );
 
   return {
     playMidiNote,
     playNote,
     playChord,
     playChordAndArp,
-    playChordAndArpFast,
+    playArpFastAndArp,
+    setInstrumentName,
   };
 };
 

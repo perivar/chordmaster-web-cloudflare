@@ -10,6 +10,8 @@ import {
   NotesChordAlternatives,
 } from "~/utils/getNotesChordAlternatives";
 
+import usePlaySound from "~/hooks/usePlaySound";
+
 import GuitarChord from "./GuitarChord";
 import { MyDrawer } from "./MyDrawer";
 import PianoChord from "./PianoChord";
@@ -26,27 +28,6 @@ interface Props {
   closeLabel: string;
 }
 
-const renderPianoChord = (
-  notesChordAlternatives: NotesChordAlternatives | undefined
-) => {
-  return (
-    <div className="flex min-w-52 flex-col p-3">
-      <PianoChord notesChordAlternatives={notesChordAlternatives} />
-    </div>
-  );
-};
-
-const renderGuitarChord = (
-  guitarChord: ChordElement | undefined,
-  guitarChordLookup: string
-) => {
-  return (
-    <div className="py-2">
-      <GuitarChord chord={guitarChord} name={guitarChordLookup} />
-    </div>
-  );
-};
-
 const MyChordTab: FunctionComponent<Props> = ({
   guitarChords,
   showPiano,
@@ -58,6 +39,14 @@ const MyChordTab: FunctionComponent<Props> = ({
   closeLabel,
 }) => {
   const columnRefs = useRef<HTMLDivElement[]>([]);
+
+  const {
+    playArpFastAndArp,
+    playChordAndArp,
+    playNote,
+    playMidiNote,
+    setInstrumentName,
+  } = usePlaySound();
 
   useEffect(() => {
     if (selectedChord) {
@@ -76,7 +65,45 @@ const MyChordTab: FunctionComponent<Props> = ({
     }
   }, [selectedChord, allChords]);
 
+  useEffect(() => {
+    if (showPiano) {
+      setInstrumentName("piano");
+    } else {
+      setInstrumentName("guitar");
+    }
+  }, [showPiano]);
+
   if (!selectedChord) return null;
+
+  const renderPianoChord = (
+    notesChordAlternatives: NotesChordAlternatives | undefined
+  ) => {
+    return (
+      <div className="flex min-w-52 flex-col p-3">
+        <PianoChord
+          notesChordAlternatives={notesChordAlternatives}
+          playChord={playChordAndArp}
+          playMidiNote={playMidiNote}
+        />
+      </div>
+    );
+  };
+
+  const renderGuitarChord = (
+    guitarChord: ChordElement | undefined,
+    guitarChordLookup: string
+  ) => {
+    return (
+      <div className="py-2">
+        <GuitarChord
+          chord={guitarChord}
+          name={guitarChordLookup}
+          playChord={playArpFastAndArp}
+          playNote={playNote}
+        />
+      </div>
+    );
+  };
 
   const chordMap = getGuitarChordMap(guitarChords);
 

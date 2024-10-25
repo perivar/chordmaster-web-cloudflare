@@ -1,15 +1,14 @@
 import { FunctionComponent } from "react";
 import { calculateMidiNotes } from "~/utils/calculateMidiNotes";
 import { NotesChordAlternatives } from "~/utils/getNotesChordAlternatives";
-import { Midi } from "tonal";
-
-import usePlaySound from "~/hooks/usePlaySound";
 
 interface PianoChordProps {
   notesChordAlternatives: NotesChordAlternatives | undefined;
+  playChord: (midiNotes: number[]) => void;
+  playMidiNote: (midiNote: number) => void;
 }
 
-const getChordFreqs = (
+const getMidiNotes = (
   notesChordAlternatives: NotesChordAlternatives | undefined
 ): number[] | undefined => {
   if (notesChordAlternatives && notesChordAlternatives.rootNote) {
@@ -19,22 +18,19 @@ const getChordFreqs = (
       notesChordAlternatives.chordSemitones
     );
 
-    const chordFreqs = midiNotes.map(midiNote => Midi.midiToFreq(midiNote));
-    return chordFreqs;
+    return midiNotes;
   }
 };
 
 const PianoChord: FunctionComponent<PianoChordProps> = ({
   notesChordAlternatives,
+  playChord,
+  playMidiNote,
 }) => {
-  const chordFreqs = getChordFreqs(notesChordAlternatives);
-  const { playMidiNote, playChordAndArp } = usePlaySound(
-    "piano",
-    chordFreqs || []
-  );
-
   const renderPianoChord = () => {
     if (!notesChordAlternatives) return null;
+
+    const midiNotes = getMidiNotes(notesChordAlternatives);
 
     // Enharmonic equivalent mapping (sharp to flat)
     const enharmonicMap: { [key: string]: string } = {
@@ -199,7 +195,7 @@ const PianoChord: FunctionComponent<PianoChordProps> = ({
             <div
               role="button"
               tabIndex={0}
-              onMouseDown={() => playChordAndArp()}>
+              onMouseDown={() => playChord(midiNotes || [])}>
               {notesChordAlternatives.chordNames.map(chord => (
                 <p key={chord} className="text-sm">
                   {chord}
