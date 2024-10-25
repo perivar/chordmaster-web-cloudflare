@@ -1,11 +1,38 @@
 import { FunctionComponent } from "react";
+import { calculateMidiNotes } from "~/utils/calculateMidiNotes";
 import { NotesChordAlternatives } from "~/utils/getNotesChordAlternatives";
+import { Midi } from "tonal";
 
-interface Props {
+import usePlaySound from "~/hooks/usePlaySound";
+
+interface PianoChordProps {
   notesChordAlternatives: NotesChordAlternatives | undefined;
 }
 
-const PianoChord: FunctionComponent<Props> = ({ notesChordAlternatives }) => {
+const getChordFreqs = (
+  notesChordAlternatives: NotesChordAlternatives | undefined
+): number[] | undefined => {
+  if (notesChordAlternatives && notesChordAlternatives.rootNote) {
+    // get the midi notes
+    const midiNotes = calculateMidiNotes(
+      notesChordAlternatives.rootNote,
+      notesChordAlternatives.chordSemitones
+    );
+
+    const chordFreqs = midiNotes.map(midiNote => Midi.midiToFreq(midiNote));
+    return chordFreqs;
+  }
+};
+
+const PianoChord: FunctionComponent<PianoChordProps> = ({
+  notesChordAlternatives,
+}) => {
+  const chordFreqs = getChordFreqs(notesChordAlternatives);
+  const { playMidiNote, playChordAndArp } = usePlaySound(
+    "piano",
+    chordFreqs || []
+  );
+
   const renderPianoChord = () => {
     if (!notesChordAlternatives) return null;
 
@@ -30,9 +57,27 @@ const PianoChord: FunctionComponent<Props> = ({ notesChordAlternatives }) => {
       );
     };
 
+    const pianoKeys = [
+      { name: "C", key: "A", color: "white", midi: 48, note: "C4" },
+      { name: "C#", key: "W", color: "black", midi: 49, note: "C#4" },
+      { name: "D", key: "S", color: "white", midi: 50, note: "D4" },
+      { name: "D#", key: "E", color: "black", midi: 51, note: "D#4" },
+      { name: "E", key: "D", color: "white", midi: 52, note: "E4" },
+      { name: "F", key: "F", color: "white", midi: 53, note: "F4" },
+      { name: "F#", key: "T", color: "black", midi: 54, note: "F#4" },
+      { name: "G", key: "G", color: "white", midi: 55, note: "G4" },
+      { name: "G#", key: "Y", color: "black", midi: 56, note: "G#4" },
+      { name: "A", key: "H", color: "white", midi: 57, note: "A4" },
+      { name: "A#", key: "U", color: "black", midi: 58, note: "A#4" },
+      { name: "B", key: "J", color: "white", midi: 59, note: "B4" },
+      { name: "C", key: "K", color: "white", midi: 60, note: "C5" },
+    ];
+
     // Piano key layout (7 white keys + upper "C" and 5 black keys for an octave)
-    const whiteKeys = ["C", "D", "E", "F", "G", "A", "B", "C"];
-    const blackKeys = ["C#", "D#", "F#", "G#", "A#"];
+    // const whiteKeys = ["C", "D", "E", "F", "G", "A", "B", "C"];
+    // const blackKeys = ["C#", "D#", "F#", "G#", "A#"];
+    const whiteKeys = pianoKeys.filter(key => key.color === "white");
+    const blackKeys = pianoKeys.filter(key => key.color === "black");
 
     const whiteKeyWidth = 200 / 8; // 200 / 8 white keys (C to upper C)
     const blackKeyWidth = 16; // Thinner black keys
@@ -47,19 +92,20 @@ const PianoChord: FunctionComponent<Props> = ({ notesChordAlternatives }) => {
           viewBox="0 0 200 120">
           {/* Draw white keys including upper "C" */}
           {whiteKeys.map((key, index) => (
-            <g key={index}>
+            <g key={key.midi} onMouseDown={() => playMidiNote(key.midi)}>
               <rect
                 x={index * whiteKeyWidth}
                 y={0}
                 width={whiteKeyWidth}
                 height={100}
-                fill={isNotePressed(key) ? "#add8e6" : "white"} // Highlight pressed keys
+                fill={isNotePressed(key.name) ? "#add8e6" : "white"} // Highlight pressed keys
                 stroke="#777"
                 strokeWidth={1}
                 rx={cornerRadius}
                 ry={cornerRadius}
               />
-              {isNotePressed(key) && (
+
+              {isNotePressed(key.name) && (
                 <text
                   x={index * whiteKeyWidth + whiteKeyWidth / 2} // Centered below the key
                   y={90} // Positioning below the keys
@@ -67,7 +113,7 @@ const PianoChord: FunctionComponent<Props> = ({ notesChordAlternatives }) => {
                   fill={"#000"}
                   fontFamily="Verdana"
                   textAnchor="middle">
-                  {key}
+                  {key.name}
                 </text>
               )}
             </g>
@@ -91,19 +137,19 @@ const PianoChord: FunctionComponent<Props> = ({ notesChordAlternatives }) => {
                 ? (index + 1) * whiteKeyWidth - blackKeyWidth / 2
                 : (index + 2) * whiteKeyWidth - blackKeyWidth / 2; // Offset for black keys
             return (
-              <g key={key}>
+              <g key={key.midi} onMouseDown={() => playMidiNote(key.midi)}>
                 <rect
                   x={xPosition}
                   y={0}
                   width={blackKeyWidth}
                   height={70}
-                  fill={isNotePressed(key) ? "#30819c" : "black"} // Highlight pressed keys
+                  fill={isNotePressed(key.name) ? "#30819c" : "black"} // Highlight pressed keys
                   stroke="#000"
                   strokeWidth={0.5}
                   rx={cornerRadius}
                   ry={cornerRadius}
                 />
-                {isNotePressed(key) && (
+                {isNotePressed(key.name) && (
                   <text
                     x={xPosition + blackKeyWidth / 2} // Centered above the key
                     y={60} // Positioning for the black key labels
@@ -111,7 +157,7 @@ const PianoChord: FunctionComponent<Props> = ({ notesChordAlternatives }) => {
                     fill="white"
                     fontFamily="Verdana"
                     textAnchor="middle">
-                    {key}
+                    {key.name}
                   </text>
                 )}
               </g>
@@ -150,11 +196,16 @@ const PianoChord: FunctionComponent<Props> = ({ notesChordAlternatives }) => {
 
           {/* Piano Chord Names */}
           <div className="pt-2 text-center">
-            {notesChordAlternatives.chordNames.map(chord => (
-              <p key={chord} className="text-sm">
-                {chord}
-              </p>
-            ))}
+            <div
+              role="button"
+              tabIndex={0}
+              onMouseDown={() => playChordAndArp()}>
+              {notesChordAlternatives.chordNames.map(chord => (
+                <p key={chord} className="text-sm">
+                  {chord}
+                </p>
+              ))}
+            </div>
           </div>
         </div>
       </>

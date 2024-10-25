@@ -1,4 +1,8 @@
-import { Chord as ChordTonal, Note as NoteTonal } from "tonal";
+import {
+  Chord as ChordTonal,
+  Interval as IntervalTonal,
+  Note as NoteTonal,
+} from "tonal";
 
 import { ChordInformation } from "./getChordInformation";
 
@@ -8,6 +12,8 @@ export const getChordInformationTonal = (value: string): ChordInformation => {
 
   let notes: string[] = [];
   let intervals: string[] = [];
+  let semitones: number[] = [];
+
   let rootNote: string | undefined;
   let bassNote: string | undefined;
 
@@ -22,6 +28,13 @@ export const getChordInformationTonal = (value: string): ChordInformation => {
       bassNote = chordTonal.bass;
       notes = chordTonal.notes;
       intervals = chordTonal.intervals;
+
+      if (intervals.length > 0) {
+        semitones = intervals.map(interval => {
+          const semitone = IntervalTonal.semitones(interval);
+          return semitone;
+        });
+      }
 
       // the default chord name is stored in the symbol object,
       // but uses names that are not optimally named.
@@ -63,6 +76,7 @@ export const getChordInformationTonal = (value: string): ChordInformation => {
     rootNote,
     bassNote,
     intervals,
+    semitones,
     notes,
     error,
   };

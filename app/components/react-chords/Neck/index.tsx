@@ -63,6 +63,7 @@ const Neck: React.FC<NeckProps> = ({
   notes,
   lite = false,
   dark = false,
+  playNote,
 }) => {
   let noteIndex = 0; // Initialize noteIndex outside the map function
 
@@ -97,9 +98,12 @@ const Neck: React.FC<NeckProps> = ({
         <g>
           {tuning.slice().map((note, index) => {
             // if we have notes, use this instead of the tuning
-            if (notes) {
-              // Check if the frets array at this index is not -1, then print the corresponding note from the notes array
-              return frets[index] !== -1 ? (
+            if (notes && frets[index] !== -1) {
+              // Only increment noteIndex if frets[index] is not -1
+              // i.e. the note is actually used and not avoided
+              const currentNote = notes[noteIndex++];
+
+              return (
                 <text
                   key={index}
                   fontSize="0.3rem"
@@ -107,10 +111,18 @@ const Neck: React.FC<NeckProps> = ({
                   fontFamily="Verdana"
                   textAnchor="middle"
                   x={offsets[strings].x + index * 10}
-                  y="53">
-                  {notes[noteIndex++]}
+                  y="53"
+                  onMouseDown={() => {
+                    if (playNote) {
+                      playNote(currentNote);
+                    }
+                  }}>
+                  {currentNote}
                 </text>
-              ) : null;
+              );
+            } else if (notes) {
+              // Do not increment noteIndex if frets[index] is -1
+              return null;
             } else {
               // use tuning
               return (

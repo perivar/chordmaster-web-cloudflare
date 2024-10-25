@@ -21,5 +21,6 @@ declare module "ChordModule" {
     instrument: InstrumentType;
     lite?: boolean;
     dark?: boolean;
+    playNote?: (note: string) => void;
   };
 }

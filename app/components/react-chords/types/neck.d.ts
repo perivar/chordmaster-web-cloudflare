@@ -18,5 +18,6 @@ declare module "NeckModules" {
     notes?: string[]; // the notes as note names
     lite?: boolean;
     dark?: boolean;
+    playNote?: (note: string) => void;
   }
 }

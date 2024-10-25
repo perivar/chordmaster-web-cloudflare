@@ -5,6 +5,7 @@ export interface NotesChordAlternatives {
   chordNotes: string[];
   chordNames: string[];
   chordIntervals: string[];
+  chordSemitones: number[];
   rootNote?: string;
   bassNote?: string;
 }
@@ -18,6 +19,7 @@ export const getNotesChordAlternatives = (
     chordNotes: [],
     chordNames: [],
     chordIntervals: [],
+    chordSemitones: [],
     rootNote: undefined,
     bassNote: undefined,
   };
@@ -27,6 +29,7 @@ export const getNotesChordAlternatives = (
   notesChordAlternatives.bassNote = chordInfo.bassNote;
   notesChordAlternatives.chordNotes = chordInfo.notes;
   notesChordAlternatives.chordIntervals = chordInfo.intervals;
+  notesChordAlternatives.chordSemitones = chordInfo.semitones;
 
   // add base note as first note if it exist
   const altChordNotes = [...notesChordAlternatives.chordNotes];

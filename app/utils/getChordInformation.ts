@@ -32,6 +32,10 @@ export interface ChordInformation {
    */
   notes: string[];
   /**
+   * - list of semitones composing the chord. Ex: `[0, 4, 7, 11]` for `CMaj7`
+   */
+  semitones: number[];
+  /**
    * - error object
    */
   error: unknown;
@@ -46,6 +50,8 @@ export const getChordInformation = (
 
   let notes: string[] = [];
   let intervals: string[] = [];
+  let semitones: number[] = [];
+
   let rootNote: string | undefined;
   let bassNote: string | undefined;
 
@@ -61,6 +67,7 @@ export const getChordInformation = (
       bassNote = chord.normalized?.bassNote;
       notes = chord.normalized?.notes ?? [];
       intervals = chord.normalized?.intervals ?? [];
+      semitones = chord.normalized?.semitones ?? [];
 
       // render chord name using chord-symbol
       if (simplify) {
@@ -82,6 +89,7 @@ export const getChordInformation = (
     rootNote,
     bassNote,
     intervals,
+    semitones,
     notes,
     error,
   };

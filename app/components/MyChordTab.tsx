@@ -10,7 +10,7 @@ import {
   NotesChordAlternatives,
 } from "~/utils/getNotesChordAlternatives";
 
-import ChordChart from "./ChordChart";
+import GuitarChord from "./GuitarChord";
 import { MyDrawer } from "./MyDrawer";
 import PianoChord from "./PianoChord";
 import { Button } from "./ui/button";
@@ -42,9 +42,7 @@ const renderGuitarChord = (
 ) => {
   return (
     <div className="py-2">
-      {/* Guitar Chord Chart */}
-      <ChordChart chord={guitarChord} />
-      <p className="text-center text-sm">{guitarChordLookup}</p>
+      <GuitarChord chord={guitarChord} name={guitarChordLookup} />
     </div>
   );
 };

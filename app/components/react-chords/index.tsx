@@ -15,6 +15,7 @@ const Chord: React.FC<ChordProps> = ({
   instrument,
   lite = false,
   dark = false,
+  playNote,
 }) => {
   return chord ? (
     <svg
@@ -33,6 +34,7 @@ const Chord: React.FC<ChordProps> = ({
           notes={chord.notes}
           lite={lite}
           dark={dark}
+          playNote={playNote}
         />
 
         {chord.barres &&
