@@ -103,7 +103,7 @@ export default function SortableSongList({
             <div className="font-medium">
               <Link to={`/songs/${row.original.id}`}>{row.original.title}</Link>
             </div>
-            <div className="text-sm text-muted-foreground md:hidden">
+            <div className="mt-2 text-sm text-muted-foreground md:hidden">
               <Link to={`/artists/${row.original.artist.id}`}>
                 {row.original.artist.name}
               </Link>

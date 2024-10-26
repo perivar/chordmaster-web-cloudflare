@@ -80,7 +80,7 @@ const GuitarChord: FunctionComponent<GuitarChordProps> = ({
       <div
         role="button"
         tabIndex={0}
-        onMouseDown={() => playChord(chordElement.midi)}>
+        onPointerDown={() => playChord(chordElement.midi)}>
         <div className="text-center text-sm">{name}</div>
       </div>
     </div>

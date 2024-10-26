@@ -116,8 +116,7 @@ const Neck: React.FC<NeckProps> = ({
             d={stringPath}
             stroke="transparent"
             strokeWidth="8"
-            onMouseDown={() => handleStringClick(index)}
-            onTouchStart={() => handleStringClick(index)}
+            onPointerDown={() => handleStringClick(index)}
           />
           {/* Visible string path */}
           <path
@@ -165,8 +164,7 @@ const Neck: React.FC<NeckProps> = ({
                     textAnchor="middle"
                     x={offsets[strings].x + index * 10}
                     y="53"
-                    onMouseDown={() => handleStringClick(index)}
-                    onTouchStart={() => handleStringClick(index)}>
+                    onPointerDown={() => handleStringClick(index)}>
                     {currentNote}
                   </text>
                 );

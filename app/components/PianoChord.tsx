@@ -88,7 +88,7 @@ const PianoChord: FunctionComponent<PianoChordProps> = ({
           viewBox="0 0 200 120">
           {/* Draw white keys including upper "C" */}
           {whiteKeys.map((key, index) => (
-            <g key={key.midi} onMouseDown={() => playMidiNote(key.midi)}>
+            <g key={key.midi} onPointerDown={() => playMidiNote(key.midi)}>
               <rect
                 x={index * whiteKeyWidth}
                 y={0}
@@ -133,7 +133,7 @@ const PianoChord: FunctionComponent<PianoChordProps> = ({
                 ? (index + 1) * whiteKeyWidth - blackKeyWidth / 2
                 : (index + 2) * whiteKeyWidth - blackKeyWidth / 2; // Offset for black keys
             return (
-              <g key={key.midi} onMouseDown={() => playMidiNote(key.midi)}>
+              <g key={key.midi} onPointerDown={() => playMidiNote(key.midi)}>
                 <rect
                   x={xPosition}
                   y={0}
@@ -170,7 +170,7 @@ const PianoChord: FunctionComponent<PianoChordProps> = ({
                 tabIndex={0}
                 key={note}
                 className="w-6 text-center"
-                onMouseDown={() => {
+                onPointerDown={() => {
                   if (midiNotes) playMidiNote(midiNotes[index]);
                 }}>
                 <p className="text-base">{note}</p>
@@ -202,7 +202,9 @@ const PianoChord: FunctionComponent<PianoChordProps> = ({
             <div
               role="button"
               tabIndex={0}
-              onMouseDown={() => playChord(midiNotes || [])}>
+              onPointerDown={() => {
+                if (midiNotes) playChord(midiNotes);
+              }}>
               {notesChordAlternatives.chordNames.map(chord => (
                 <p key={chord} className="text-sm">
                   {chord}
