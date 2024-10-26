@@ -164,8 +164,15 @@ const PianoChord: FunctionComponent<PianoChordProps> = ({
         {/* Piano Notes */}
         <div className="px-4">
           <div className="flex justify-between font-semibold dark:text-gray-300">
-            {notesChordAlternatives.chordNotes.map(note => (
-              <div key={note} className="w-6 text-center">
+            {notesChordAlternatives.chordNotes.map((note, index) => (
+              <div
+                role="button"
+                tabIndex={0}
+                key={note}
+                className="w-6 text-center"
+                onMouseDown={() => {
+                  if (midiNotes) playMidiNote(midiNotes[index]);
+                }}>
                 <p className="text-base">{note}</p>
               </div>
             ))}

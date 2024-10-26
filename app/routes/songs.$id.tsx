@@ -54,7 +54,8 @@ import {
   MAX_FONT_SIZE,
   MIN_FONT_SIZE,
 } from "~/components/SongRender";
-import styles from "~/styles/chordsheetjs.css?url";
+import chordsheetStyles from "~/styles/chordsheetjs.css?url";
+import guitarStyles from "~/styles/guitarfretboard.css?url";
 
 // originally from: https://github.com/artutra/OpenChord/tree/master/app/assets/chords
 // better? : https://github.com/T-vK/chord-collection
@@ -67,7 +68,10 @@ export const meta: MetaFunction = () => [
   { name: "description", content: "View Song" },
 ];
 
-export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
+export const links: LinksFunction = () => [
+  { rel: "stylesheet", href: chordsheetStyles },
+  { rel: "stylesheet", href: guitarStyles },
+];
 
 export async function loader({ request }: LoaderFunctionArgs) {
   // Get the host from the request headers

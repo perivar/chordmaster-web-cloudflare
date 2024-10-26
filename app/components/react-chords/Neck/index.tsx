@@ -1,5 +1,5 @@
 // src/components/Neck.tsx
-import React from "react";
+import React, { useState } from "react";
 import { NeckProps, Offsets } from "NeckModules";
 
 const offsets: Offsets = {
@@ -21,15 +21,15 @@ const getNeckHorizonalLine = (pos: number, strings: number): string =>
 const getNeckVerticalLine = (pos: number, strings: number) =>
   `M ${offsets[strings].y + pos * 10} 0 V 48`;
 
-const getNeckPath = (strings: number, fretsOnChord: number) =>
+const getNeckFretsPath = (strings: number, fretsOnChord: number) =>
   Array.from({ length: fretsOnChord + 1 })
     .map((_, pos) => getNeckHorizonalLine(pos, strings))
-    .join(" ")
-    .concat(
-      Array.from({ length: strings })
-        .map((_, pos) => getNeckVerticalLine(pos, strings))
-        .join(" ")
-    );
+    .join(" ");
+
+const getNeckStringsPath = (strings: number) =>
+  Array.from({ length: strings }).map((_, pos) =>
+    getNeckVerticalLine(pos, strings)
+  );
 
 const getBarreOffset = (
   strings: number,
@@ -65,17 +65,72 @@ const Neck: React.FC<NeckProps> = ({
   dark = false,
   playNote,
 }) => {
-  let noteIndex = 0; // Initialize noteIndex outside the map function
+  const [vibratingString, setVibratingString] = useState<number | null>(null);
+
+  // return the current note based on the fret index (zero-based)
+  const getCurrentNote = (index: number) => {
+    if (!notes || frets[index] === -1) {
+      return null;
+    }
+
+    let validFretCount = 0;
+
+    // Count valid frets up to the current index
+    for (let i = 0; i <= index; i++) {
+      if (frets[i] !== -1) {
+        validFretCount++;
+      }
+    }
+
+    // Use validFretCount - 1 because we want zero-based indexing
+    return notes[validFretCount - 1];
+  };
+
+  const handleStringClick = (index: number) => {
+    const currentNote = getCurrentNote(index);
+
+    if (currentNote) {
+      if (playNote) playNote(currentNote);
+
+      setVibratingString(index);
+      setTimeout(() => setVibratingString(null), 300); // Stop vibration after 300ms
+    }
+  };
 
   return (
     <g>
+      {/* Render the horizontal frets */}
       <path
         stroke={dark ? "#ccc" : "#444"}
         strokeWidth="0.25"
         strokeLinecap="square"
         strokeLinejoin="round"
-        d={getNeckPath(strings, fretsOnChord)}
+        d={getNeckFretsPath(strings, fretsOnChord)}
       />
+
+      {/* Render the vertical guitar strings with support for vibrating the strings on click using css */}
+      {getNeckStringsPath(strings).map((stringPath, index) => (
+        <g key={index}>
+          {/* Invisible hitbox with larger strokeWidth */}
+          <path
+            d={stringPath}
+            stroke="transparent"
+            strokeWidth="8"
+            onMouseDown={() => handleStringClick(index)}
+            onTouchStart={() => handleStringClick(index)}
+          />
+          {/* Visible string path */}
+          <path
+            d={stringPath}
+            className={`string ${vibratingString === index ? "vibrating" : ""}`}
+            stroke={dark ? "#ccc" : "#444"}
+            strokeWidth="0.25"
+            strokeLinecap="square"
+            strokeLinejoin="round"
+          />
+        </g>
+      ))}
+
       {baseFret === 1 ? (
         <path
           stroke={dark ? "#ccc" : "#444"}
@@ -96,39 +151,34 @@ const Neck: React.FC<NeckProps> = ({
       )}
       {!lite && (
         <g>
-          {tuning.slice().map((note, index) => {
-            // if we have notes, use this instead of the tuning
-            if (notes && frets[index] !== -1) {
-              // Only increment noteIndex if frets[index] is not -1
-              // i.e. the note is actually used and not avoided
-              const currentNote = notes[noteIndex++];
-
+          {/* If notes are provided use the current note name */}
+          {notes &&
+            frets.map((note, index) => {
+              const currentNote = getCurrentNote(index);
+              if (currentNote) {
+                return (
+                  <text
+                    key={index}
+                    fontSize="0.25rem"
+                    fill={dark ? "#ccc" : "#444"}
+                    fontFamily="Verdana"
+                    textAnchor="middle"
+                    x={offsets[strings].x + index * 10}
+                    y="53"
+                    onMouseDown={() => handleStringClick(index)}
+                    onTouchStart={() => handleStringClick(index)}>
+                    {currentNote}
+                  </text>
+                );
+              }
+            })}
+          {/* If notes are not provided use tuning notes */}
+          {!notes &&
+            tuning.slice().map((note, index) => {
               return (
                 <text
                   key={index}
-                  fontSize="0.3rem"
-                  fill={dark ? "#ccc" : "#444"}
-                  fontFamily="Verdana"
-                  textAnchor="middle"
-                  x={offsets[strings].x + index * 10}
-                  y="53"
-                  onMouseDown={() => {
-                    if (playNote) {
-                      playNote(currentNote);
-                    }
-                  }}>
-                  {currentNote}
-                </text>
-              );
-            } else if (notes) {
-              // Do not increment noteIndex if frets[index] is -1
-              return null;
-            } else {
-              // use tuning
-              return (
-                <text
-                  key={index}
-                  fontSize="0.3rem"
+                  fontSize="0.25rem"
                   fill={dark ? "#ccc" : "#444"}
                   fontFamily="Verdana"
                   textAnchor="middle"
@@ -137,8 +187,7 @@ const Neck: React.FC<NeckProps> = ({
                   {note}
                 </text>
               );
-            }
-          })}
+            })}
         </g>
       )}
     </g>

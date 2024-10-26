@@ -13,6 +13,28 @@ interface GuitarChordProps {
   playNote: (note: string) => void;
 }
 
+{
+  /* The component can be dummy tested like this
+  <GuitarChord
+  name="G7"
+  chord={{
+    key: "G",
+    suffix: "dim7",
+    positions: [
+      {
+        frets: [3, 1, -1, 3, 2, 0],
+        fingers: [3, 1, 0, 4, 2, 0],
+        baseFret: 1,
+        barres: [],
+        midi: [43, 46, 58, 61, 64],
+        notes: ["C1", "D2", "E3", "F4", "G5"],
+      },
+    ],
+  }}
+  playChord={(midiNotes: number[]) => console.log(midiNotes)}
+  playNote={(note: string) => console.log(note)}
+/>; */
+}
 const GuitarChord: FunctionComponent<GuitarChordProps> = ({
   name,
   chord,
