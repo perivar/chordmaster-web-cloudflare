@@ -43,7 +43,7 @@ const Barre: React.FC<BarreType> = ({
   const y = fretYPosition[barre - 1];
 
   return (
-    <g>
+    <g style={{ pointerEvents: "none" }}>
       {capo && (
         <g>
           <g

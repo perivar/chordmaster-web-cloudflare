@@ -35,11 +35,12 @@ const Dot: React.FC<DotType> = ({
       fontFamily="Verdana"
       textAnchor="middle"
       x={getStringPosition(string, strings)}
-      y="-2">
+      y="-2"
+      style={{ pointerEvents: "none" }}>
       x
     </text>
   ) : (
-    <g>
+    <g style={{ pointerEvents: "none" }}>
       <circle
         strokeWidth="0.25"
         stroke={dark ? "#ccc" : "#444"}

@@ -5,6 +5,7 @@ declare module "ChordModule" {
     baseFret: number; // which fret do we start with, normally 1
     barres?: number[]; // one or more fingers is pressed onto multiple strings, 1 - 4
     capo?: boolean; // whether the barres overlaps the whole fretboard
+    midi: number[]; // midi notes
     notes?: string[]; // the notes as note names
   };
 

@@ -15,6 +15,7 @@ declare module "NeckModules" {
     strings: number;
     baseFret: number; //0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14;
     fretsOnChord: number;
+    midi: number[]; // midi notes
     notes?: string[]; // the notes as note names
     lite?: boolean;
     dark?: boolean;

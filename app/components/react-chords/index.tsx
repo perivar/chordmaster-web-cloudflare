@@ -32,6 +32,7 @@ const Chord: React.FC<ChordProps> = ({
           capo={chord.capo}
           fretsOnChord={instrument.fretsOnChord}
           baseFret={chord.baseFret}
+          midi={chord.midi}
           notes={chord.notes}
           lite={lite}
           dark={dark}

@@ -2,7 +2,6 @@
 
 import React from "react";
 import { NeckProps, Offsets } from "NeckModules";
-import { Midi } from "tonal";
 
 const offsets: Offsets = {
   4: {
@@ -63,6 +62,7 @@ const Neck: React.FC<NeckProps> = ({
   baseFret = 1,
   capo,
   notes,
+  midi,
   lite = false,
   dark = false,
   handleKeyDown,
@@ -87,13 +87,23 @@ const Neck: React.FC<NeckProps> = ({
     return notes[validFretCount - 1];
   };
 
+  // return the current note based on the fret index (zero-based)
   const getCurrentNoteMidi = (index: number) => {
-    const currentNote = getCurrentNote(index);
-    if (currentNote) {
-      const midiNote = Midi.toMidi(currentNote);
-      return midiNote;
+    if (!midi || frets[index] === -1) {
+      return null;
     }
-    return null;
+
+    let validFretCount = 0;
+
+    // Count valid frets up to the current index
+    for (let i = 0; i <= index; i++) {
+      if (frets[i] !== -1) {
+        validFretCount++;
+      }
+    }
+
+    // Use validFretCount - 1 because we want zero-based indexing
+    return midi[validFretCount - 1];
   };
 
   const handleStringClick = (index: number) => {
