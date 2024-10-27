@@ -83,51 +83,68 @@ const GuitarChord: FunctionComponent<GuitarChordProps> = ({
 
   return (
     <div className="min-w-52">
-      <Chord
-        chord={chordElement}
-        instrument={instrument}
-        lite={lite}
-        dark={theme === "dark"}
-        handleKeyDown={(midiNote: number) => {
-          playMidiNote(
-            midiNote,
-            (sample: SampleStart) => {
-              setSelectedSamples(prevSamples =>
-                prevSamples.includes(sample.note as number)
-                  ? prevSamples
-                  : [...prevSamples, sample.note as number]
-              );
-            },
-            (sample: SampleStart) => {
-              setSelectedSamples(prevSamples =>
-                prevSamples.filter(n => n !== sample.note)
-              );
-            }
-          );
-        }}
-        selectedSamples={selectedSamples}
-      />
-      <div
-        role="button"
-        tabIndex={0}
-        onPointerDown={() => {
-          playChord(
-            chordElement.midi,
-            (sample: SampleStart) => {
-              setSelectedSamples(prevSamples =>
-                prevSamples.includes(sample.note as number)
-                  ? prevSamples
-                  : [...prevSamples, sample.note as number]
-              );
-            },
-            (sample: SampleStart) => {
-              setSelectedSamples(prevSamples =>
-                prevSamples.filter(n => n !== sample.note)
-              );
-            }
-          );
-        }}>
-        <div className="text-center text-sm">{name}</div>
+      <div className="max-h-52 overflow-y-auto">
+        {/* Scrollable container */}
+        {chord?.positions && chord?.positions.length > 0 ? (
+          chord.positions.map((position, index) => (
+            <>
+              <Chord
+                key={index}
+                chord={position}
+                instrument={instrument}
+                lite={lite}
+                dark={theme === "dark"}
+                handleKeyDown={(midiNote: number) => {
+                  playMidiNote(
+                    midiNote,
+                    (sample: SampleStart) => {
+                      setSelectedSamples(prevSamples =>
+                        prevSamples.includes(sample.note as number)
+                          ? prevSamples
+                          : [...prevSamples, sample.note as number]
+                      );
+                    },
+                    (sample: SampleStart) => {
+                      setSelectedSamples(prevSamples =>
+                        prevSamples.filter(n => n !== sample.note)
+                      );
+                    }
+                  );
+                }}
+                selectedSamples={selectedSamples}
+              />
+              <div
+                role="button"
+                tabIndex={0}
+                onPointerDown={() => {
+                  playChord(
+                    position.midi,
+                    (sample: SampleStart) => {
+                      setSelectedSamples(prevSamples =>
+                        prevSamples.includes(sample.note as number)
+                          ? prevSamples
+                          : [...prevSamples, sample.note as number]
+                      );
+                    },
+                    (sample: SampleStart) => {
+                      setSelectedSamples(prevSamples =>
+                        prevSamples.filter(n => n !== sample.note)
+                      );
+                    }
+                  );
+                }}>
+                <div className="text-center text-sm">{name}</div>
+              </div>
+            </>
+          ))
+        ) : (
+          <Chord
+            chord={chordElement}
+            instrument={instrument}
+            lite={lite}
+            dark={theme === "dark"}
+          />
+        )}
       </div>
     </div>
   );

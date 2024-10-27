@@ -22,7 +22,7 @@ declare module "ChordModule" {
     instrument: InstrumentType;
     lite?: boolean;
     dark?: boolean;
-    handleKeyDown: (midiNote: number) => void;
-    selectedSamples: number[];
+    handleKeyDown?: (midiNote: number) => void;
+    selectedSamples?: number[];
   };
 }

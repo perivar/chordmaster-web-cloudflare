@@ -19,8 +19,8 @@ interface PianoChordProps {
 
 interface KeyboardChordProps {
   notesChordAlternatives: NotesChordAlternatives | undefined;
-  handleKeyDown: (midiNote: number) => void;
-  selectedSamples: number[];
+  handleKeyDown?: (midiNote: number) => void;
+  selectedSamples?: number[];
 }
 
 const KeyboardChord: React.FC<KeyboardChordProps> = ({
@@ -141,7 +141,7 @@ const KeyboardChord: React.FC<KeyboardChordProps> = ({
         <g
           key={key.midi}
           className="cursor-pointer"
-          onPointerDown={() => handleKeyDown(key.midi)}>
+          onPointerDown={() => handleKeyDown && handleKeyDown(key.midi)}>
           <rect
             x={index * whiteKeyWidth}
             y={0}
@@ -195,7 +195,7 @@ const KeyboardChord: React.FC<KeyboardChordProps> = ({
           <g
             key={key.midi}
             className="cursor-pointer"
-            onPointerDown={() => handleKeyDown(key.midi)}>
+            onPointerDown={() => handleKeyDown && handleKeyDown(key.midi)}>
             <rect
               x={xPosition}
               y={0}

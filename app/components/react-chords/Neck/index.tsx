@@ -98,17 +98,19 @@ const Neck: React.FC<NeckProps> = ({
   };
 
   const handleStringClick = (index: number) => {
-    const currentNoteMidi = getCurrentNoteMidi(index);
+    if (!handleKeyDown) return;
 
+    const currentNoteMidi = getCurrentNoteMidi(index);
     if (currentNoteMidi) {
       handleKeyDown(currentNoteMidi);
     }
   };
 
   const isSelectedString = (index: number) => {
-    const currentNoteMidi = getCurrentNoteMidi(index);
+    if (!selectedSamples) return false;
 
-    if (currentNoteMidi && selectedSamples) {
+    const currentNoteMidi = getCurrentNoteMidi(index);
+    if (currentNoteMidi) {
       if (selectedSamples.includes(currentNoteMidi)) return true;
     }
 

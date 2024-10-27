@@ -19,7 +19,7 @@ declare module "NeckModules" {
     notes?: string[]; // the notes as note names
     lite?: boolean;
     dark?: boolean;
-    handleKeyDown: (midiNote: number) => void;
-    selectedSamples: number[];
+    handleKeyDown?: (midiNote: number) => void;
+    selectedSamples?: number[];
   }
 }
