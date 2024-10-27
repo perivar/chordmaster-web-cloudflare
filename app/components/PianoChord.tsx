@@ -35,13 +35,13 @@ const getMidiNotes = (
 interface KeyboardChordProps {
   notesChordAlternatives: NotesChordAlternatives | undefined;
   handleKeyDown: (midiNote: number) => void;
-  selectedSample: SampleStart | null;
+  selectedSamples: number[];
 }
 
 const KeyboardChord: React.FC<KeyboardChordProps> = ({
   notesChordAlternatives,
   handleKeyDown,
-  selectedSample,
+  selectedSamples,
 }) => {
   if (!notesChordAlternatives) return null;
 
@@ -66,13 +66,16 @@ const KeyboardChord: React.FC<KeyboardChordProps> = ({
     );
   };
 
-  const isSameKey = (keyMidi1: number, keyMidi2?: number) => {
-    if (keyMidi2 === undefined) {
+  const isSameKey = (keyMidi1: number, keyMidi2?: number[]) => {
+    if (!keyMidi2 || keyMidi2.length === 0) {
       return false;
     }
 
-    // Calculate the note names by getting the remainder of division by 12
-    return keyMidi1 % 12 === keyMidi2 % 12;
+    // Calculate the note name by getting the remainder of division by 12
+    const noteKey1 = keyMidi1 % 12;
+
+    // Check if any key in keyMidi2 matches noteKey1
+    return keyMidi2.some(key => key % 12 === noteKey1);
   };
 
   interface PianoKey {
@@ -106,7 +109,9 @@ const KeyboardChord: React.FC<KeyboardChordProps> = ({
   const blackKeys = pianoKeys.filter(key => key.color === "black");
 
   const whiteKeyWidth = 200 / 8; // 200 / 8 white keys (C to upper C)
-  const blackKeyWidth = 16; // Thinner black keys
+  const whiteKeyHeight = 100;
+  const blackKeyWidth = 18; // Thinner black keys
+  const blackKeyHeight = 60;
   const cornerRadius = 3; // Adjust for more or less rounding
 
   return (
@@ -125,9 +130,9 @@ const KeyboardChord: React.FC<KeyboardChordProps> = ({
             x={index * whiteKeyWidth}
             y={0}
             width={whiteKeyWidth}
-            height={100}
+            height={whiteKeyHeight}
             fill={
-              isSameKey(key.midi, selectedSample?.note as number)
+              isSameKey(key.midi, selectedSamples)
                 ? "#a9a9a9"
                 : isNotePressed(key.name)
                   ? "#add8e6"
@@ -142,7 +147,7 @@ const KeyboardChord: React.FC<KeyboardChordProps> = ({
           {isNotePressed(key.name) && (
             <text
               x={index * whiteKeyWidth + whiteKeyWidth / 2} // Centered below the key
-              y={90} // Positioning below the keys
+              y={whiteKeyHeight - 10} // Positioning below the keys
               fontSize="0.5rem"
               fill={"#000"}
               fontFamily="Verdana"
@@ -158,7 +163,7 @@ const KeyboardChord: React.FC<KeyboardChordProps> = ({
         x={8 * whiteKeyWidth - blackKeyWidth / 2 - 3} // Position above C
         y={0}
         width={blackKeyWidth}
-        height={70}
+        height={blackKeyHeight}
         fill="black"
         rx={cornerRadius}
         ry={cornerRadius}
@@ -179,9 +184,9 @@ const KeyboardChord: React.FC<KeyboardChordProps> = ({
               x={xPosition}
               y={0}
               width={blackKeyWidth}
-              height={70}
+              height={blackKeyHeight}
               fill={
-                isSameKey(key.midi, selectedSample?.note as number)
+                isSameKey(key.midi, selectedSamples)
                   ? "#a9a9a9"
                   : isNotePressed(key.name)
                     ? "#30819c"
@@ -195,7 +200,7 @@ const KeyboardChord: React.FC<KeyboardChordProps> = ({
             {isNotePressed(key.name) && (
               <text
                 x={xPosition + blackKeyWidth / 2} // Centered above the key
-                y={60} // Positioning for the black key labels
+                y={blackKeyHeight - 10} // Positioning for the black key labels
                 fontSize="0.5rem"
                 fill="white"
                 fontFamily="Verdana"
@@ -215,9 +220,8 @@ const PianoChord: FunctionComponent<PianoChordProps> = ({
   playChord,
   playMidiNote,
 }) => {
-  const [selectedSample, setSelectedSample] = useState<SampleStart | null>(
-    null
-  );
+  // support selecting several samples at once
+  const [selectedSamples, setSelectedSamples] = useState<number[]>([]);
 
   if (!notesChordAlternatives) return null;
 
@@ -230,11 +234,21 @@ const PianoChord: FunctionComponent<PianoChordProps> = ({
         handleKeyDown={(midiNote: number) => {
           playMidiNote(
             midiNote,
-            (sample: SampleStart) => setSelectedSample(sample),
-            () => setSelectedSample(null)
+            (sample: SampleStart) => {
+              setSelectedSamples(prevSamples =>
+                prevSamples.includes(sample.note as number)
+                  ? prevSamples
+                  : [...prevSamples, sample.note as number]
+              );
+            },
+            (sample: SampleStart) => {
+              setSelectedSamples(prevSamples =>
+                prevSamples.filter(n => n !== sample.note)
+              );
+            }
           );
         }}
-        selectedSample={selectedSample}
+        selectedSamples={selectedSamples}
       />
       {/* Piano Notes */}
       <div className="px-4">
@@ -249,8 +263,18 @@ const PianoChord: FunctionComponent<PianoChordProps> = ({
                 if (midiNotes)
                   playMidiNote(
                     midiNotes[index],
-                    (sample: SampleStart) => setSelectedSample(sample),
-                    () => setSelectedSample(null)
+                    (sample: SampleStart) => {
+                      setSelectedSamples(prevSamples =>
+                        prevSamples.includes(sample.note as number)
+                          ? prevSamples
+                          : [...prevSamples, sample.note as number]
+                      );
+                    },
+                    (sample: SampleStart) => {
+                      setSelectedSamples(prevSamples =>
+                        prevSamples.filter(n => n !== sample.note)
+                      );
+                    }
                   );
               }}>
               <p className="text-base">{note}</p>
@@ -284,8 +308,18 @@ const PianoChord: FunctionComponent<PianoChordProps> = ({
               if (midiNotes)
                 playChord(
                   midiNotes,
-                  (sample: SampleStart) => setSelectedSample(sample),
-                  () => setSelectedSample(null)
+                  (sample: SampleStart) => {
+                    setSelectedSamples(prevSamples =>
+                      prevSamples.includes(sample.note as number)
+                        ? prevSamples
+                        : [...prevSamples, sample.note as number]
+                    );
+                  },
+                  (sample: SampleStart) => {
+                    setSelectedSamples(prevSamples =>
+                      prevSamples.filter(note => note !== sample.note)
+                    );
+                  }
                 );
             }}>
             {notesChordAlternatives.chordNames.map(chord => (

@@ -66,11 +66,11 @@ const Neck: React.FC<NeckProps> = ({
   lite = false,
   dark = false,
   handleKeyDown,
-  selectedSample,
+  selectedSamples,
 }) => {
-  // return the current note based on the fret index (zero-based)
-  const getCurrentNote = (index: number) => {
-    if (!notes || frets[index] === -1) {
+  // note that to make the generic work in tsx files, add a extra comma
+  const getCurrentValue = <T,>(index: number, dataArray: T[]): T | null => {
+    if (!dataArray || frets[index] === -1) {
       return null;
     }
 
@@ -84,26 +84,17 @@ const Neck: React.FC<NeckProps> = ({
     }
 
     // Use validFretCount - 1 because we want zero-based indexing
-    return notes[validFretCount - 1];
+    return dataArray[validFretCount - 1];
   };
 
-  // return the current note based on the fret index (zero-based)
-  const getCurrentNoteMidi = (index: number) => {
-    if (!midi || frets[index] === -1) {
-      return null;
-    }
+  // Get current note based on the fret index (zero-based)
+  const getCurrentNote = (index: number): string | null => {
+    return getCurrentValue<string>(index, notes!);
+  };
 
-    let validFretCount = 0;
-
-    // Count valid frets up to the current index
-    for (let i = 0; i <= index; i++) {
-      if (frets[i] !== -1) {
-        validFretCount++;
-      }
-    }
-
-    // Use validFretCount - 1 because we want zero-based indexing
-    return midi[validFretCount - 1];
+  // Get current MIDI note based on the fret index (zero-based)
+  const getCurrentNoteMidi = (index: number): number | null => {
+    return getCurrentValue<number>(index, midi);
   };
 
   const handleStringClick = (index: number) => {
@@ -117,8 +108,8 @@ const Neck: React.FC<NeckProps> = ({
   const isSelectedString = (index: number) => {
     const currentNoteMidi = getCurrentNoteMidi(index);
 
-    if (currentNoteMidi && selectedSample) {
-      if (selectedSample.note === currentNoteMidi) return true;
+    if (currentNoteMidi && selectedSamples) {
+      if (selectedSamples.includes(currentNoteMidi)) return true;
     }
 
     return false;

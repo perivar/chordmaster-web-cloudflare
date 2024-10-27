@@ -99,7 +99,7 @@ const usePlaySound = (): UsePlaySoundReturn => {
           note: midiNote,
           velocity: 100,
           time: now,
-          duration: 1.0,
+          duration: 0.6,
           onStart: onStart,
           onEnded: onEnded,
         });
@@ -122,7 +122,7 @@ const usePlaySound = (): UsePlaySoundReturn => {
           note,
           velocity: 100,
           time: now,
-          duration: 1.0,
+          duration: 0.6,
           onStart: onStart,
           onEnded: onEnded,
         });
@@ -145,7 +145,7 @@ const usePlaySound = (): UsePlaySoundReturn => {
           instrument.start({
             note,
             time: now,
-            duration: 1.0,
+            duration: 0.6,
             onStart: onStart,
             onEnded: onEnded,
           });
@@ -169,17 +169,19 @@ const usePlaySound = (): UsePlaySoundReturn => {
           instrument.start({
             note,
             time: now,
-            duration: 1.0,
+            duration: 0.6,
             onStart: onStart,
             onEnded: onEnded,
           });
         });
 
+        // allow enough time for the previous notes to dye out
+        // i.e. add 1.25 ms
         midiNotes.forEach((note, i) => {
           instrument.start({
             note,
-            time: now + 1 + i * 0.8,
-            duration: 1.0,
+            time: now + 2.0 + i * 0.8,
+            duration: 0.6,
             onStart: onStart,
             onEnded: onEnded,
           });
@@ -203,17 +205,19 @@ const usePlaySound = (): UsePlaySoundReturn => {
           instrument.start({
             note,
             time: now + i * 0.05,
-            duration: 1.0,
+            duration: 0.6,
             onStart: onStart,
             onEnded: onEnded,
           });
         });
 
+        // allow enough time for the previous notes to dye out
+        // i.e. add 1.25 ms
         midiNotes.forEach((note, i) => {
           instrument.start({
             note,
-            time: now + 1 + i * 0.8,
-            duration: 1.0,
+            time: now + 2.0 + i * 0.8,
+            duration: 0.6,
             onStart: onStart,
             onEnded: onEnded,
           });

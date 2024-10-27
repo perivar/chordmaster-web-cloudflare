@@ -16,7 +16,7 @@ const Chord: React.FC<ChordProps> = ({
   lite = false,
   dark = false,
   handleKeyDown,
-  selectedSample,
+  selectedSamples,
 }) => {
   return chord ? (
     <svg
@@ -37,7 +37,7 @@ const Chord: React.FC<ChordProps> = ({
           lite={lite}
           dark={dark}
           handleKeyDown={handleKeyDown}
-          selectedSample={selectedSample}
+          selectedSamples={selectedSamples}
         />
 
         {chord.barres &&

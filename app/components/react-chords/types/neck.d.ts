@@ -20,6 +20,6 @@ declare module "NeckModules" {
     lite?: boolean;
     dark?: boolean;
     handleKeyDown: (midiNote: number) => void;
-    selectedSample: SampleStart | null;
+    selectedSamples: number[];
   }
 }

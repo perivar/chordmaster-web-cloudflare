@@ -78,9 +78,8 @@ const GuitarChord: FunctionComponent<GuitarChordProps> = ({
   // Find the position with the lowest baseFret or return a default chord if not found
   const chordElement = chord?.positions[0] ?? defaultChordPosition;
 
-  const [selectedSample, setSelectedSample] = useState<SampleStart | null>(
-    null
-  );
+  // support selecting several samples at once
+  const [selectedSamples, setSelectedSamples] = useState<number[]>([]);
 
   return (
     <div className="min-w-52">
@@ -92,11 +91,21 @@ const GuitarChord: FunctionComponent<GuitarChordProps> = ({
         handleKeyDown={(midiNote: number) => {
           playMidiNote(
             midiNote,
-            (sample: SampleStart) => setSelectedSample(sample),
-            () => setSelectedSample(null)
+            (sample: SampleStart) => {
+              setSelectedSamples(prevSamples =>
+                prevSamples.includes(sample.note as number)
+                  ? prevSamples
+                  : [...prevSamples, sample.note as number]
+              );
+            },
+            (sample: SampleStart) => {
+              setSelectedSamples(prevSamples =>
+                prevSamples.filter(n => n !== sample.note)
+              );
+            }
           );
         }}
-        selectedSample={selectedSample}
+        selectedSamples={selectedSamples}
       />
       <div
         role="button"
@@ -104,8 +113,18 @@ const GuitarChord: FunctionComponent<GuitarChordProps> = ({
         onPointerDown={() => {
           playChord(
             chordElement.midi,
-            (sample: SampleStart) => setSelectedSample(sample),
-            () => setSelectedSample(null)
+            (sample: SampleStart) => {
+              setSelectedSamples(prevSamples =>
+                prevSamples.includes(sample.note as number)
+                  ? prevSamples
+                  : [...prevSamples, sample.note as number]
+              );
+            },
+            (sample: SampleStart) => {
+              setSelectedSamples(prevSamples =>
+                prevSamples.filter(n => n !== sample.note)
+              );
+            }
           );
         }}>
         <div className="text-center text-sm">{name}</div>
