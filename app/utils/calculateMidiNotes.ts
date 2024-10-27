@@ -29,12 +29,27 @@ type Note = keyof typeof midiNoteMap;
  */
 export const calculateMidiNotes = (
   rootNote: Note,
-  semitones: number[]
+  semitones: number[],
+  bassNote?: Note
 ): number[] => {
   const rootMidi = midiNoteMap[rootNote];
   if (rootMidi === undefined) {
     throw new Error(`Invalid root note: ${rootNote}`);
   }
 
-  return semitones.map(semitone => rootMidi + semitone);
+  // Calculate MIDI notes from semitones
+  const midiFromSemitones = semitones.map(semitone => rootMidi + semitone);
+
+  // Check if a valid bass note is provided
+  if (bassNote) {
+    const maybeBassNoteMidi = midiNoteMap[bassNote];
+    if (maybeBassNoteMidi) {
+      const bassNoteMidi = maybeBassNoteMidi - 12;
+      // Return bass note first followed by the other MIDI notes
+      return [bassNoteMidi, ...midiFromSemitones];
+    }
+  }
+
+  // Return only the MIDI notes if no valid bass note is found
+  return midiFromSemitones;
 };

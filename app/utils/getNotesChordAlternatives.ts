@@ -1,3 +1,4 @@
+import { calculateMidiNotes } from "./calculateMidiNotes";
 import { getChordAlternativesTonal } from "./getChordAlternativesTonal";
 import { ChordInformation } from "./getChordInformation";
 
@@ -8,6 +9,7 @@ export interface NotesChordAlternatives {
   chordSemitones: number[];
   rootNote?: string;
   bassNote?: string;
+  midiNotes?: number[]; // the midi notes corresponding to the chord notes
 }
 
 export const getNotesChordAlternatives = (
@@ -22,6 +24,7 @@ export const getNotesChordAlternatives = (
     chordSemitones: [],
     rootNote: undefined,
     bassNote: undefined,
+    midiNotes: undefined,
   };
 
   const chordInfo = getChordInfo(chordName);
@@ -32,18 +35,19 @@ export const getNotesChordAlternatives = (
   notesChordAlternatives.chordSemitones = chordInfo.semitones;
 
   // add base note as first note if it exist
-  const altChordNotes = [...notesChordAlternatives.chordNotes];
+  const lookupChordNotes = [...notesChordAlternatives.chordNotes]; // create new array
   if (notesChordAlternatives.bassNote) {
-    altChordNotes.unshift(notesChordAlternatives.bassNote);
+    lookupChordNotes.unshift(notesChordAlternatives.bassNote);
   }
 
   // lookup alternative chord names
-  const alternatives = getChordAlternativesTonal(altChordNotes);
-  if (alternatives.chordNames) {
-    notesChordAlternatives.chordNames = alternatives.chordNames;
+  const chordAlternatives = getChordAlternativesTonal(lookupChordNotes);
+  if (chordAlternatives.chordNames) {
+    notesChordAlternatives.chordNames = chordAlternatives.chordNames;
   }
 
   // read and fix alternative chord names
+  // useful since tonaljs returns chord names in a special format
   if (doFixAlternativeChordNames) {
     notesChordAlternatives.chordNames = notesChordAlternatives.chordNames.map(
       name => {
@@ -67,6 +71,15 @@ export const getNotesChordAlternatives = (
   if (!alreadyAdded) {
     // add chord as first chord if it does not already exist
     notesChordAlternatives.chordNames.unshift(chordName);
+  }
+
+  // add the corresponding midi notes to the object as well
+  if (notesChordAlternatives.rootNote) {
+    notesChordAlternatives.midiNotes = calculateMidiNotes(
+      notesChordAlternatives.rootNote,
+      notesChordAlternatives.chordSemitones,
+      notesChordAlternatives.bassNote
+    );
   }
 
   return notesChordAlternatives;

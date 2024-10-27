@@ -1,5 +1,4 @@
 import { FunctionComponent, useState } from "react";
-import { calculateMidiNotes } from "~/utils/calculateMidiNotes";
 import { NotesChordAlternatives } from "~/utils/getNotesChordAlternatives";
 
 import { SampleStart } from "~/hooks/usePlaySound";
@@ -18,20 +17,6 @@ interface PianoChordProps {
   ) => void;
 }
 
-const getMidiNotes = (
-  notesChordAlternatives: NotesChordAlternatives | undefined
-): number[] | undefined => {
-  if (notesChordAlternatives && notesChordAlternatives.rootNote) {
-    // get the midi notes
-    const midiNotes = calculateMidiNotes(
-      notesChordAlternatives.rootNote,
-      notesChordAlternatives.chordSemitones
-    );
-
-    return midiNotes;
-  }
-};
-
 interface KeyboardChordProps {
   notesChordAlternatives: NotesChordAlternatives | undefined;
   handleKeyDown: (midiNote: number) => void;
@@ -45,37 +30,32 @@ const KeyboardChord: React.FC<KeyboardChordProps> = ({
 }) => {
   if (!notesChordAlternatives) return null;
 
-  // Enharmonic equivalent mapping (sharp to flat)
-  const enharmonicMap: { [key: string]: string } = {
-    "C#": "Db",
-    "D#": "Eb",
-    "F#": "Gb",
-    "G#": "Ab",
-    "A#": "Bb",
-  };
-
-  // Function to determine if a note is pressed, including flat equivalents
-  const isNotePressed = (note: string) => {
-    const flatEquivalent = enharmonicMap[note] || note;
-    return (
-      notesChordAlternatives.chordNotes.includes(note) ||
-      notesChordAlternatives.chordNotes.includes(flatEquivalent) ||
-      (notesChordAlternatives.bassNote &&
-        (notesChordAlternatives.bassNote === note ||
-          notesChordAlternatives.bassNote === flatEquivalent))
-    );
-  };
-
-  const isSameKey = (keyMidi1: number, keyMidi2?: number[]) => {
-    if (!keyMidi2 || keyMidi2.length === 0) {
+  const isSameKey = (
+    keyMidi1?: number | number[],
+    keyMidi2?: number | number[]
+  ) => {
+    // If either keyMidi1 or keyMidi2 is undefined or empty, return false
+    if (!keyMidi1 || !keyMidi2) {
       return false;
     }
 
-    // Calculate the note name by getting the remainder of division by 12
-    const noteKey1 = keyMidi1 % 12;
+    // Function to calculate the note key by getting the remainder of division by 12
+    const getNoteKey = (key: number) => key % 12;
 
-    // Check if any key in keyMidi2 matches noteKey1
-    return keyMidi2.some(key => key % 12 === noteKey1);
+    // Create an array of note keys for keyMidi1
+    const noteKeys1 = Array.isArray(keyMidi1)
+      ? keyMidi1.map(getNoteKey)
+      : [getNoteKey(keyMidi1)];
+
+    // Create an array of note keys for keyMidi2
+    const noteKeys2 = Array.isArray(keyMidi2)
+      ? keyMidi2.map(getNoteKey)
+      : [getNoteKey(keyMidi2)];
+
+    // Check if any key in noteKeys1 matches any key in noteKeys2
+    return noteKeys1.some(noteKey1 =>
+      noteKeys2.some(noteKey2 => noteKey1 === noteKey2)
+    );
   };
 
   interface PianoKey {
@@ -134,7 +114,7 @@ const KeyboardChord: React.FC<KeyboardChordProps> = ({
             fill={
               isSameKey(key.midi, selectedSamples)
                 ? "#a9a9a9"
-                : isNotePressed(key.name)
+                : isSameKey(key.midi, notesChordAlternatives.midiNotes)
                   ? "#add8e6"
                   : "#f9f9f9"
             }
@@ -144,7 +124,7 @@ const KeyboardChord: React.FC<KeyboardChordProps> = ({
             ry={cornerRadius}
           />
 
-          {isNotePressed(key.name) && (
+          {isSameKey(key.midi, notesChordAlternatives.midiNotes) && (
             <text
               x={index * whiteKeyWidth + whiteKeyWidth / 2} // Centered below the key
               y={whiteKeyHeight - 10} // Positioning below the keys
@@ -188,7 +168,7 @@ const KeyboardChord: React.FC<KeyboardChordProps> = ({
               fill={
                 isSameKey(key.midi, selectedSamples)
                   ? "#a9a9a9"
-                  : isNotePressed(key.name)
+                  : isSameKey(key.midi, notesChordAlternatives.midiNotes)
                     ? "#30819c"
                     : "#202020"
               }
@@ -197,7 +177,7 @@ const KeyboardChord: React.FC<KeyboardChordProps> = ({
               rx={cornerRadius}
               ry={cornerRadius}
             />
-            {isNotePressed(key.name) && (
+            {isSameKey(key.midi, notesChordAlternatives.midiNotes) && (
               <text
                 x={xPosition + blackKeyWidth / 2} // Centered above the key
                 y={blackKeyHeight - 10} // Positioning for the black key labels
@@ -224,8 +204,6 @@ const PianoChord: FunctionComponent<PianoChordProps> = ({
   const [selectedSamples, setSelectedSamples] = useState<number[]>([]);
 
   if (!notesChordAlternatives) return null;
-
-  const midiNotes = getMidiNotes(notesChordAlternatives);
 
   return (
     <>
@@ -260,9 +238,13 @@ const PianoChord: FunctionComponent<PianoChordProps> = ({
               key={note}
               className="w-6 text-center"
               onPointerDown={() => {
-                if (midiNotes)
+                if (notesChordAlternatives.midiNotes) {
+                  const midiNote = notesChordAlternatives.bassNote
+                    ? notesChordAlternatives.midiNotes[index + 1]
+                    : notesChordAlternatives.midiNotes[index];
+
                   playMidiNote(
-                    midiNotes[index],
+                    midiNote,
                     (sample: SampleStart) => {
                       setSelectedSamples(prevSamples =>
                         prevSamples.includes(sample.note as number)
@@ -276,12 +258,38 @@ const PianoChord: FunctionComponent<PianoChordProps> = ({
                       );
                     }
                   );
+                }
               }}>
               <p className="text-base">{note}</p>
             </div>
           ))}
+          {/* If Bass Note exist */}
           {notesChordAlternatives.bassNote && (
-            <div className="w-6 text-center dark:text-gray-300">
+            <div
+              role="button"
+              tabIndex={0}
+              className="w-6 text-center dark:text-gray-300"
+              onPointerDown={() => {
+                if (notesChordAlternatives.midiNotes) {
+                  const midiNote = notesChordAlternatives.midiNotes[0];
+
+                  playMidiNote(
+                    midiNote,
+                    (sample: SampleStart) => {
+                      setSelectedSamples(prevSamples =>
+                        prevSamples.includes(sample.note as number)
+                          ? prevSamples
+                          : [...prevSamples, sample.note as number]
+                      );
+                    },
+                    (sample: SampleStart) => {
+                      setSelectedSamples(prevSamples =>
+                        prevSamples.filter(n => n !== sample.note)
+                      );
+                    }
+                  );
+                }
+              }}>
               <p className="text-base">/{notesChordAlternatives.bassNote}</p>
             </div>
           )}
@@ -305,9 +313,9 @@ const PianoChord: FunctionComponent<PianoChordProps> = ({
             role="button"
             tabIndex={0}
             onPointerDown={() => {
-              if (midiNotes)
+              if (notesChordAlternatives.midiNotes) {
                 playChord(
-                  midiNotes,
+                  notesChordAlternatives.midiNotes,
                   (sample: SampleStart) => {
                     setSelectedSamples(prevSamples =>
                       prevSamples.includes(sample.note as number)
@@ -321,6 +329,7 @@ const PianoChord: FunctionComponent<PianoChordProps> = ({
                     );
                   }
                 );
+              }
             }}>
             {notesChordAlternatives.chordNames.map(chord => (
               <p key={chord} className="text-sm">

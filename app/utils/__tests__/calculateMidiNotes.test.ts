@@ -5,9 +5,9 @@ const DO_DEBUG_OBJECT = false;
 
 // Am13/G
 test("calculateMidiNotes1", () => {
-  const actual = calculateMidiNotes("A", [0, 3, 7, 10, 14, 17, 21]);
+  const actual = calculateMidiNotes("A", [0, 3, 7, 10, 14, 17, 21], "G");
   if (DO_DEBUG_OBJECT) console.log(JSON.stringify(actual, null, 2));
-  expect(actual).toStrictEqual([57, 60, 64, 67, 71, 74, 78]);
+  expect(actual).toStrictEqual([43, 57, 60, 64, 67, 71, 74, 78]);
 });
 
 // C7
@@ -29,4 +29,11 @@ test("calculateMidiNotes4", () => {
   const actual = calculateMidiNotes("G", [0, 4, 7]);
   if (DO_DEBUG_OBJECT) console.log(JSON.stringify(actual, null, 2));
   expect(actual).toStrictEqual([55, 59, 62]);
+});
+
+// Am7/D
+test("calculateMidiNotes5", () => {
+  const actual = calculateMidiNotes("A", [0, 3, 7, 10], "D");
+  if (DO_DEBUG_OBJECT) console.log(JSON.stringify(actual, null, 2));
+  expect(actual).toStrictEqual([38, 57, 60, 64, 67]);
 });
