@@ -1,7 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Soundfont } from "smplr";
-
-import { getAudioContext } from "./audio-context";
+import { Reverb, Soundfont } from "smplr";
 
 type SoundType = "piano" | "guitar";
 
@@ -59,18 +57,25 @@ type UsePlaySoundReturn = {
     onEnded?: (sample: SampleStart) => void
   ) => void;
   setInstrumentName: (name: SoundType) => void;
+  setVolume: (volume: number) => void;
+  setReverbMix: (mix: number) => void;
+  isLoading: boolean;
 };
 
-const usePlaySound = (): UsePlaySoundReturn => {
+const usePlaySound = (
+  initialVolume: number = 100,
+  initialReverbMix: number = 0.0
+): UsePlaySoundReturn => {
   const [instrument, setInstrument] = useState<Soundfont | undefined>(
     undefined
   );
   const [instrumentName, setInstrumentName] = useState<SoundType>("piano");
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (instrument) instrument.disconnect();
 
-    const context = getAudioContext();
+    const context = new AudioContext();
 
     const newInstrument = new Soundfont(context, {
       instrument:
@@ -78,11 +83,21 @@ const usePlaySound = (): UsePlaySoundReturn => {
           ? "acoustic_grand_piano"
           : "acoustic_guitar_nylon", // acoustic_grand_piano, acoustic_guitar_nylon
       kit: "FluidR3_GM", // MusyngKite (default), FluidR3_GM, FatBoy
+      volume: initialVolume, // volume: A number from 0 to 127 representing the instrument global volume. 100 by default
     });
 
+    const reverb = new Reverb(context);
+    newInstrument.output.addEffect("reverb", reverb, initialReverbMix); // mix: A number from 0.0 to 1.0 representing the reverb mix
+
+    setIsLoading(true);
     newInstrument.load.then(() => {
       setInstrument(newInstrument);
+      setIsLoading(false);
     });
+
+    return () => {
+      if (instrument) instrument.disconnect();
+    };
   }, [instrumentName]);
 
   const playMidiNote = useCallback(
@@ -92,9 +107,12 @@ const usePlaySound = (): UsePlaySoundReturn => {
       onEnded?: (sample: SampleStart) => void
     ) => {
       if (instrument) {
+        if (instrument.context.state === "suspended") {
+          instrument.context.resume();
+        }
         instrument.stop();
 
-        const now = getAudioContext().currentTime;
+        const now = instrument.context.currentTime;
         instrument.start({
           note: midiNote,
           velocity: 100,
@@ -115,9 +133,12 @@ const usePlaySound = (): UsePlaySoundReturn => {
       onEnded?: (sample: SampleStart) => void
     ) => {
       if (instrument) {
+        if (instrument.context.state === "suspended") {
+          instrument.context.resume();
+        }
         instrument.stop();
 
-        const now = getAudioContext().currentTime;
+        const now = instrument.context.currentTime;
         instrument.start({
           note,
           velocity: 100,
@@ -138,9 +159,12 @@ const usePlaySound = (): UsePlaySoundReturn => {
       onEnded?: (sample: SampleStart) => void
     ) => {
       if (instrument) {
+        if (instrument.context.state === "suspended") {
+          instrument.context.resume();
+        }
         instrument.stop();
 
-        const now = getAudioContext().currentTime;
+        const now = instrument.context.currentTime;
         midiNotes.forEach(note => {
           instrument.start({
             note,
@@ -162,9 +186,12 @@ const usePlaySound = (): UsePlaySoundReturn => {
       onEnded?: (sample: SampleStart) => void
     ) => {
       if (instrument) {
+        if (instrument.context.state === "suspended") {
+          instrument.context.resume();
+        }
         instrument.stop();
 
-        const now = getAudioContext().currentTime;
+        const now = instrument.context.currentTime;
         midiNotes.forEach(note => {
           instrument.start({
             note,
@@ -198,9 +225,12 @@ const usePlaySound = (): UsePlaySoundReturn => {
       onEnded?: (sample: SampleStart) => void
     ) => {
       if (instrument) {
+        if (instrument.context.state === "suspended") {
+          instrument.context.resume();
+        }
         instrument.stop();
 
-        const now = getAudioContext().currentTime;
+        const now = instrument.context.currentTime;
         midiNotes.forEach((note, i) => {
           instrument.start({
             note,
@@ -227,6 +257,14 @@ const usePlaySound = (): UsePlaySoundReturn => {
     [instrument]
   );
 
+  const setVolume = (volume: number) => {
+    instrument?.output.setVolume(volume);
+  };
+
+  const setReverbMix = (mix: number) => {
+    instrument?.output.sendEffect("reverb", mix);
+  };
+
   return {
     playMidiNote,
     playNote,
@@ -234,6 +272,9 @@ const usePlaySound = (): UsePlaySoundReturn => {
     playChordAndArp,
     playArpFastAndArp,
     setInstrumentName,
+    setVolume,
+    setReverbMix,
+    isLoading,
   };
 };
 

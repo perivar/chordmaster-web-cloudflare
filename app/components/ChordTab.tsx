@@ -42,7 +42,12 @@ const ChordTab: FunctionComponent<Props> = ({
 }) => {
   const columnRefs = useRef<HTMLDivElement[]>([]);
 
-  const { playArpFastAndArp, playChordAndArp, playMidiNote } = usePlaySound();
+  const {
+    playArpFastAndArp,
+    playChordAndArp,
+    playMidiNote,
+    setInstrumentName,
+  } = usePlaySound(100, 0.2);
 
   useEffect(() => {
     if (selectedChord) {
@@ -62,6 +67,14 @@ const ChordTab: FunctionComponent<Props> = ({
       }
     }
   }, [selectedChord, allChords]);
+
+  useEffect(() => {
+    if (showPiano) {
+      setInstrumentName("piano");
+    } else {
+      setInstrumentName("guitar");
+    }
+  }, [showPiano]);
 
   if (!selectedChord) return null;
 

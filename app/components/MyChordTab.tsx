@@ -45,7 +45,7 @@ const MyChordTab: FunctionComponent<Props> = ({
     playChordAndArp,
     playMidiNote,
     setInstrumentName,
-  } = usePlaySound();
+  } = usePlaySound(100, 0.2);
 
   useEffect(() => {
     if (selectedChord) {
