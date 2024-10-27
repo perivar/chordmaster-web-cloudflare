@@ -43,7 +43,6 @@ const MyChordTab: FunctionComponent<Props> = ({
   const {
     playArpFastAndArp,
     playChordAndArp,
-    playNote,
     playMidiNote,
     setInstrumentName,
   } = usePlaySound();
@@ -99,7 +98,7 @@ const MyChordTab: FunctionComponent<Props> = ({
           chord={guitarChord}
           name={guitarChordLookup}
           playChord={playArpFastAndArp}
-          playNote={playNote}
+          playMidiNote={playMidiNote}
         />
       </div>
     );

@@ -42,8 +42,7 @@ const ChordTab: FunctionComponent<Props> = ({
 }) => {
   const columnRefs = useRef<HTMLDivElement[]>([]);
 
-  const { playChordAndArp, playArpFastAndArp, playNote, playMidiNote } =
-    usePlaySound();
+  const { playArpFastAndArp, playChordAndArp, playMidiNote } = usePlaySound();
 
   useEffect(() => {
     if (selectedChord) {
@@ -90,7 +89,7 @@ const ChordTab: FunctionComponent<Props> = ({
           chord={guitarChord}
           name={guitarChordLookup}
           playChord={playArpFastAndArp}
-          playNote={playNote}
+          playMidiNote={playMidiNote}
         />
       </div>
     );

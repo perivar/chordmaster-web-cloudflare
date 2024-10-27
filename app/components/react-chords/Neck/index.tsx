@@ -1,6 +1,8 @@
 // src/components/Neck.tsx
-import React, { useState } from "react";
+
+import React from "react";
 import { NeckProps, Offsets } from "NeckModules";
+import { Midi } from "tonal";
 
 const offsets: Offsets = {
   4: {
@@ -63,10 +65,9 @@ const Neck: React.FC<NeckProps> = ({
   notes,
   lite = false,
   dark = false,
-  playNote,
+  handleKeyDown,
+  selectedSample,
 }) => {
-  const [vibratingString, setVibratingString] = useState<number | null>(null);
-
   // return the current note based on the fret index (zero-based)
   const getCurrentNote = (index: number) => {
     if (!notes || frets[index] === -1) {
@@ -86,15 +87,31 @@ const Neck: React.FC<NeckProps> = ({
     return notes[validFretCount - 1];
   };
 
-  const handleStringClick = (index: number) => {
+  const getCurrentNoteMidi = (index: number) => {
     const currentNote = getCurrentNote(index);
-
     if (currentNote) {
-      if (playNote) playNote(currentNote);
-
-      setVibratingString(index);
-      setTimeout(() => setVibratingString(null), 300); // Stop vibration after 300ms
+      const midiNote = Midi.toMidi(currentNote);
+      return midiNote;
     }
+    return null;
+  };
+
+  const handleStringClick = (index: number) => {
+    const currentNoteMidi = getCurrentNoteMidi(index);
+
+    if (currentNoteMidi) {
+      handleKeyDown(currentNoteMidi);
+    }
+  };
+
+  const isSelectedString = (index: number) => {
+    const currentNoteMidi = getCurrentNoteMidi(index);
+
+    if (currentNoteMidi && selectedSample) {
+      if (selectedSample.note === currentNoteMidi) return true;
+    }
+
+    return false;
   };
 
   return (
@@ -113,6 +130,7 @@ const Neck: React.FC<NeckProps> = ({
         <g key={index}>
           {/* Invisible hitbox with larger strokeWidth */}
           <path
+            className="cursor-pointer"
             d={stringPath}
             stroke="transparent"
             strokeWidth="8"
@@ -121,7 +139,7 @@ const Neck: React.FC<NeckProps> = ({
           {/* Visible string path */}
           <path
             d={stringPath}
-            className={`string ${vibratingString === index ? "vibrating" : ""}`}
+            className={`string ${isSelectedString(index) ? "vibrating" : ""}`}
             stroke={dark ? "#ccc" : "#444"}
             strokeWidth="0.25"
             strokeLinecap="square"

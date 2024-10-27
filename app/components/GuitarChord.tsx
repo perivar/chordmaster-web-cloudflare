@@ -1,6 +1,8 @@
-import { FunctionComponent } from "react";
+import { FunctionComponent, useState } from "react";
 import { ChordElement, ChordPosition } from "~/utils/getGuitarChordMap";
 import { useTheme } from "remix-themes";
+
+import { SampleStart } from "~/hooks/usePlaySound";
 
 import Chord from "./react-chords";
 
@@ -9,8 +11,16 @@ interface GuitarChordProps {
   chord?: ChordElement;
   tuning?: string[];
   lite?: boolean;
-  playChord: (midiNotes: number[]) => void;
-  playNote: (note: string) => void;
+  playChord: (
+    midiNotes: number[],
+    onStart?: (sample: SampleStart) => void,
+    onEnded?: (sample: SampleStart) => void
+  ) => void;
+  playMidiNote: (
+    midiNote: number,
+    onStart?: (sample: SampleStart) => void,
+    onEnded?: (sample: SampleStart) => void
+  ) => void;
 }
 
 {
@@ -32,7 +42,7 @@ interface GuitarChordProps {
     ],
   }}
   playChord={(midiNotes: number[]) => console.log(midiNotes)}
-  playNote={(note: string) => console.log(note)}
+  playMidiNote={(midiNote: number) => console.log(midiNote)}
 />; */
 }
 const GuitarChord: FunctionComponent<GuitarChordProps> = ({
@@ -41,7 +51,7 @@ const GuitarChord: FunctionComponent<GuitarChordProps> = ({
   tuning = ["E", "A", "D", "G", "B", "E"],
   lite = false, // defaults to false if omitted
   playChord,
-  playNote,
+  playMidiNote,
 }) => {
   const [theme, _] = useTheme();
 
@@ -68,6 +78,10 @@ const GuitarChord: FunctionComponent<GuitarChordProps> = ({
   // Find the position with the lowest baseFret or return a default chord if not found
   const chordElement = chord?.positions[0] ?? defaultChordPosition;
 
+  const [selectedSample, setSelectedSample] = useState<SampleStart | null>(
+    null
+  );
+
   return (
     <div className="min-w-52">
       <Chord
@@ -75,12 +89,25 @@ const GuitarChord: FunctionComponent<GuitarChordProps> = ({
         instrument={instrument}
         lite={lite}
         dark={theme === "dark"}
-        playNote={playNote}
+        handleKeyDown={(midiNote: number) => {
+          playMidiNote(
+            midiNote,
+            (sample: SampleStart) => setSelectedSample(sample),
+            () => setSelectedSample(null)
+          );
+        }}
+        selectedSample={selectedSample}
       />
       <div
         role="button"
         tabIndex={0}
-        onPointerDown={() => playChord(chordElement.midi)}>
+        onPointerDown={() => {
+          playChord(
+            chordElement.midi,
+            (sample: SampleStart) => setSelectedSample(sample),
+            () => setSelectedSample(null)
+          );
+        }}>
         <div className="text-center text-sm">{name}</div>
       </div>
     </div>
