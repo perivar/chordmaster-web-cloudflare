@@ -30,32 +30,32 @@ const KeyboardChord: React.FC<KeyboardChordProps> = ({
 }) => {
   if (!notesChordAlternatives) return null;
 
-  const isSameKey = (
-    keyMidi1?: number | number[],
-    keyMidi2?: number | number[]
-  ) => {
-    // If either keyMidi1 or keyMidi2 is undefined or empty, return false
-    if (!keyMidi1 || !keyMidi2) {
+  const isSimilarKey = (
+    keyMidi1: number,
+    keyMidi2?: number | number[],
+    doExactCheck: boolean = false
+  ): boolean => {
+    // Return false if keyMidi2 is undefined or empty
+    if (keyMidi2 === undefined) {
       return false;
     }
 
-    // Function to calculate the note key by getting the remainder of division by 12
-    const getNoteKey = (key: number) => key % 12;
+    // Convert keyMidi2 to an array for uniform handling
+    const keyMidi2Arr = Array.isArray(keyMidi2) ? keyMidi2 : [keyMidi2];
 
-    // Create an array of note keys for keyMidi1
-    const noteKeys1 = Array.isArray(keyMidi1)
-      ? keyMidi1.map(getNoteKey)
-      : [getNoteKey(keyMidi1)];
+    if (doExactCheck) {
+      // If exact equality check is required, return true if any key in keyMidi2Arr matches keyMidi1
+      return keyMidi2Arr.includes(keyMidi1);
+    } else {
+      // Function to calculate the note key by getting the remainder of division by 12
+      const getNoteKey = (key: number) => key % 12;
 
-    // Create an array of note keys for keyMidi2
-    const noteKeys2 = Array.isArray(keyMidi2)
-      ? keyMidi2.map(getNoteKey)
-      : [getNoteKey(keyMidi2)];
+      // Calculate the note key for keyMidi1
+      const noteKey1 = getNoteKey(keyMidi1);
 
-    // Check if any key in noteKeys1 matches any key in noteKeys2
-    return noteKeys1.some(noteKey1 =>
-      noteKeys2.some(noteKey2 => noteKey1 === noteKey2)
-    );
+      // Calculate note keys for keyMidi2 and check for matches by note key
+      return keyMidi2Arr.some(key => getNoteKey(key) === noteKey1);
+    }
   };
 
   interface PianoKey {
@@ -81,6 +81,42 @@ const KeyboardChord: React.FC<KeyboardChordProps> = ({
     { name: "B", key: "J", color: "white", midi: 59, note: "B4" },
     { name: "C", key: "K", color: "white", midi: 60, note: "C5" },
   ];
+
+  const getNoteNameForMidi = (keyMidi: number): string | null => {
+    const { midiNotes, chordNotes, bassNote } = notesChordAlternatives;
+
+    // if we have a bass note, we need to add this to the chord notes array
+    const chordNotesArr = [...chordNotes];
+    if (bassNote) {
+      chordNotesArr.unshift(bassNote);
+    }
+
+    // Ensure midiNotes and chordNotes are defined and of equal length
+    if (
+      midiNotes &&
+      chordNotesArr &&
+      midiNotes.length === chordNotesArr.length
+    ) {
+      // Pre-process midiNotes to use pitch classes (0-11)
+      const pitchClasses = midiNotes.map(midiNote => midiNote % 12);
+
+      // Calculate the target pitch class for keyMidi
+      const targetPitchClass = keyMidi % 12;
+
+      // Find the index where the pitch class matches in pre-processed pitchClasses
+      const noteIndex = pitchClasses.indexOf(targetPitchClass);
+
+      // Return the corresponding chord note if found
+      if (noteIndex !== -1) {
+        return chordNotesArr[noteIndex];
+      }
+    }
+
+    // Fallback: search for the note name in pianoKeys
+    // const pianoKey = pianoKeys.find(key => key.midi === keyMidi);
+    // return pianoKey ? pianoKey.name : null;
+    return null;
+  };
 
   // Piano key layout (7 white keys + upper "C" and 5 black keys for an octave)
   // const whiteKeys = ["C", "D", "E", "F", "G", "A", "B", "C"];
@@ -112,9 +148,9 @@ const KeyboardChord: React.FC<KeyboardChordProps> = ({
             width={whiteKeyWidth}
             height={whiteKeyHeight}
             fill={
-              isSameKey(key.midi, selectedSamples)
+              isSimilarKey(key.midi, selectedSamples)
                 ? "#a9a9a9"
-                : isSameKey(key.midi, notesChordAlternatives.midiNotes)
+                : isSimilarKey(key.midi, notesChordAlternatives.midiNotes)
                   ? "#add8e6"
                   : "#f9f9f9"
             }
@@ -124,7 +160,7 @@ const KeyboardChord: React.FC<KeyboardChordProps> = ({
             ry={cornerRadius}
           />
 
-          {isSameKey(key.midi, notesChordAlternatives.midiNotes) && (
+          {isSimilarKey(key.midi, notesChordAlternatives.midiNotes) && (
             <text
               x={index * whiteKeyWidth + whiteKeyWidth / 2} // Centered below the key
               y={whiteKeyHeight - 10} // Positioning below the keys
@@ -132,7 +168,7 @@ const KeyboardChord: React.FC<KeyboardChordProps> = ({
               fill={"#000"}
               fontFamily="Verdana"
               textAnchor="middle">
-              {key.name}
+              {getNoteNameForMidi(key.midi)}
             </text>
           )}
         </g>
@@ -166,9 +202,9 @@ const KeyboardChord: React.FC<KeyboardChordProps> = ({
               width={blackKeyWidth}
               height={blackKeyHeight}
               fill={
-                isSameKey(key.midi, selectedSamples)
+                isSimilarKey(key.midi, selectedSamples)
                   ? "#a9a9a9"
-                  : isSameKey(key.midi, notesChordAlternatives.midiNotes)
+                  : isSimilarKey(key.midi, notesChordAlternatives.midiNotes)
                     ? "#30819c"
                     : "#202020"
               }
@@ -177,7 +213,7 @@ const KeyboardChord: React.FC<KeyboardChordProps> = ({
               rx={cornerRadius}
               ry={cornerRadius}
             />
-            {isSameKey(key.midi, notesChordAlternatives.midiNotes) && (
+            {isSimilarKey(key.midi, notesChordAlternatives.midiNotes) && (
               <text
                 x={xPosition + blackKeyWidth / 2} // Centered above the key
                 y={blackKeyHeight - 10} // Positioning for the black key labels
@@ -185,7 +221,7 @@ const KeyboardChord: React.FC<KeyboardChordProps> = ({
                 fill="white"
                 fontFamily="Verdana"
                 textAnchor="middle">
-                {key.name}
+                {getNoteNameForMidi(key.midi)}
               </text>
             )}
           </g>
