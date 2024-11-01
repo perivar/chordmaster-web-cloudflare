@@ -22,6 +22,7 @@ export default function Login() {
     try {
       await logout();
       console.log("User logged out successfully!");
+      return navigate(`/login`);
     } catch (err) {
       console.log("logout", err);
       if (err instanceof Error) {
@@ -30,8 +31,6 @@ export default function Login() {
     }
 
     setIsLoading(false);
-
-    return navigate(`/login`);
   }
 
   return (

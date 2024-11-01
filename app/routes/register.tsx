@@ -47,6 +47,7 @@ export default function Register() {
     try {
       await createUser(email, password);
       console.log("User registered successfully!");
+      return navigate(`/`);
     } catch (err) {
       console.log("createUser", err);
       if (err instanceof Error) {
@@ -55,8 +56,6 @@ export default function Register() {
     }
 
     setIsLoading(false);
-
-    return navigate(`/`);
   }
 
   return (
