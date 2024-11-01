@@ -101,7 +101,9 @@ export default function ForgottenPassword() {
 
       {/* Display error if exists */}
       {error && (
-        <p className="mt-1 text-red-600 dark:text-red-400">{error.message}</p>
+        <p className="mt-1 flex w-full items-center justify-center text-red-600 dark:text-red-400">
+          {error.message}
+        </p>
       )}
     </div>
   );

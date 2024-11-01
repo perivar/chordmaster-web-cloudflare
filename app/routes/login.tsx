@@ -159,7 +159,7 @@ export default function Login() {
         </Card>
       </Form>
 
-      <div className="mt-2 flex flex-col items-center gap-2 text-sm text-red-600">
+      <div className="my-2 flex flex-col items-center gap-2 text-sm text-red-600">
         {error ? error.message : null}
       </div>
 
