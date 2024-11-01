@@ -18,7 +18,7 @@ async function hydrate() {
   await i18next
     .use(initReactI18next)
     .use(I18nextBrowserLanguageDetector)
-    // .use(Backend) // Cloudflare cannot use the i18next-fs-backend backend, instead ßßbundling the resource files
+    // .use(Backend) // Cloudflare cannot use the i18next-fs-backend backend, instead bundling the resource files
     .init({
       ...i18n,
       // This function detects the namespaces your routes rendered while SSR use

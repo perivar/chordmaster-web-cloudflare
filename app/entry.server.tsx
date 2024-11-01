@@ -35,7 +35,7 @@ export default async function handleRequest(
 
   await instance
     .use(initReactI18next) // Tell our instance to use react-i18next
-    // .use(Backend) // Cloudflare cannot use the i18next-fs-backend backend, instead ßßbundling the resource files
+    // .use(Backend) // Cloudflare cannot use the i18next-fs-backend backend, instead bundling the resource files
     .init({
       ...i18nConfig, // spread the configuration
       lng, // The locale we detected above
