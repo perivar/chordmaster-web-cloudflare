@@ -293,6 +293,7 @@ export default function SongView() {
                 allChords={songProps.chords}
                 onPressClose={() => setSelectedChord(null)}
                 closeLabel={t("close")}
+                loadingInstrumentLabel={t("loading_instrument")}
               />
               <SelectPlaylist
                 songId={songIdParam}

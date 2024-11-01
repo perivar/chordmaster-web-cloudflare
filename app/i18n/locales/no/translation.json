@@ -139,5 +139,6 @@
   "songs_exported_successfully": "Sanger ble eksportert",
   "deleted_item_with_id": "Slettet element med id",
   "community_songs": "Sanger fra felleskapet",
-  "songs_by_artist": "Sanger av artist"
+  "songs_by_artist": "Sanger av artist",
+  "loading_instrument": "Laster inn instrument"
 }
