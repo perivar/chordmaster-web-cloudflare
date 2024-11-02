@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "@remix-run/react";
 import { Command, Menu, Moon, Sun } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Theme, useTheme } from "remix-themes";
 
+import useIsMounted from "~/hooks/useIsMounted";
 import { Button } from "~/components/ui/button";
 import {
   NavigationMenu,
@@ -25,13 +26,9 @@ import {
 export default function ResponsiveNavBar() {
   const [theme, setTheme] = useTheme();
   const [isOpen, setIsOpen] = useState(false);
-  const [isMounted, setMounted] = useState(false); // To check if the component has mounted
+  const isMounted = useIsMounted();
 
   const { t } = useTranslation();
-
-  useEffect(() => {
-    setMounted(true); // Now the component is mounted
-  }, []);
 
   const toggleTheme = () => {
     setTheme(theme === Theme.DARK ? Theme.LIGHT : Theme.DARK);
@@ -110,7 +107,7 @@ export default function ResponsiveNavBar() {
               size="icon"
               onClick={toggleTheme}
               className="ml-auto">
-              {isMounted &&
+              {isMounted() &&
                 (theme === "dark" ? (
                   <Sun className="size-5" />
                 ) : (
