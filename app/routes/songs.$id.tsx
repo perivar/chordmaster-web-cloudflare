@@ -43,17 +43,16 @@ import {
 } from "~/components/ui/sheet";
 import { Switch } from "~/components/ui/switch";
 import { useToast } from "~/components/ui/use-toast";
+import ChordTab from "~/components/ChordTab";
 import LinkButton from "~/components/LinkButton";
 import LoadingIndicator from "~/components/LoadingIndicator";
-import MyChordTab from "~/components/MyChordTab";
-import MySongRender from "~/components/MySongRender";
-import MySongTransformer from "~/components/MySongTransformer";
 import SelectPlaylist from "~/components/SelectPlaylist";
-import {
+import SongRender, {
   FONT_SIZES,
   MAX_FONT_SIZE,
   MIN_FONT_SIZE,
 } from "~/components/SongRender";
+import SongTransformer from "~/components/SongTransformer";
 import chordsheetStyles from "~/styles/chordsheetjs.css?url";
 import guitarStyles from "~/styles/guitarfretboard.css?url";
 
@@ -257,13 +256,13 @@ export default function SongView() {
       </div>
       {/* Main content (song sheet) */}
       <div className="size-full pb-96">
-        <MySongTransformer
+        <SongTransformer
           chordProSong={content}
           transposeDelta={transpose}
           showTabs={showTabs}>
           {songProps => (
             <div className="flex flex-col pb-6 pl-6 font-mono">
-              <MySongRender
+              <SongRender
                 onPressArtist={onPressArtist}
                 onPressChord={chordString =>
                   onClickChord(songProps.chords, chordString)
@@ -282,7 +281,7 @@ export default function SongView() {
                 title={song?.external?.source}
                 url={song?.external?.url}
               />
-              <MyChordTab
+              <ChordTab
                 guitarChords={data.chords}
                 showPiano={showPiano}
                 onShowChange={setShowPiano}
@@ -302,7 +301,7 @@ export default function SongView() {
               />
             </div>
           )}
-        </MySongTransformer>
+        </SongTransformer>
       </div>
 
       {/* Right panel (Sheet component for overlay) */}

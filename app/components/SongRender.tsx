@@ -10,10 +10,18 @@ import {
   START_OF_VERSE,
   TITLE,
 } from "~/utils/ChordSheetConstants";
-import ChordSheetJS, { ChordLyricsPair, Line, Song } from "chordsheetjs";
+
+import {
+  MyChordLyricsPair,
+  MyComment,
+  MyLine,
+  MyLiteral,
+  MySong,
+  MyTag,
+} from "~/lib/MySong";
 
 interface Props {
-  song: Song;
+  song: MySong;
   onPressChord?: (chord: string) => void;
   onPressArtist?: () => void;
   scrollSpeed?: number;
@@ -48,22 +56,18 @@ export const FONT_SIZES = Object.keys(FONT_SIZE_MAPPING).map(Number);
 const SongRender = (props: Props) => {
   const { song, scrollSpeed = 0, fontSize = 14 } = props;
 
-  const isStartOfTabs = (line: Line) => {
-    return line.items.some(
-      i => i instanceof ChordSheetJS.Tag && i.name === START_OF_TAB
-    );
+  const isStartOfTabs = (line: MyLine) => {
+    return line.items.some(i => i instanceof MyTag && i.name === START_OF_TAB);
   };
 
-  const isEndOfTabs = (line: Line) => {
-    return line.items.some(
-      i => i instanceof ChordSheetJS.Tag && i.name === END_OF_TAB
-    );
+  const isEndOfTabs = (line: MyLine) => {
+    return line.items.some(i => i instanceof MyTag && i.name === END_OF_TAB);
   };
 
-  const getLiteral = (line: Line) => {
+  const getLiteral = (line: MyLine) => {
     let literal = "";
     line.items.forEach(item => {
-      if (item instanceof ChordSheetJS.Literal) {
+      if (item instanceof MyLiteral) {
         literal = literal + item.string;
       }
     });
@@ -111,7 +115,7 @@ const SongRender = (props: Props) => {
   };
 
   // Function to render a single ChordLyricsPair (handling both chords and lyrics)
-  const renderChordLyricsPair = (item: ChordLyricsPair, key: string) => {
+  const renderChordLyricsPair = (item: MyChordLyricsPair, key: string) => {
     const { chords: chordName, lyrics } = item;
 
     // only render a chord or a lyrics if it exist
@@ -172,7 +176,7 @@ const SongRender = (props: Props) => {
       // Check if we want to skip the line (e.g., END_OF_VERSE or END_OF_CHORUS)
       const isSkipLine = line.items.some(
         item =>
-          item instanceof ChordSheetJS.Tag &&
+          item instanceof MyTag &&
           (item.name === END_OF_VERSE || item.name === END_OF_CHORUS)
       );
 
@@ -183,12 +187,12 @@ const SongRender = (props: Props) => {
               const key = `column-${lineIndex}-${itemIndex}`;
 
               // Handle ChordLyricsPair
-              if (item instanceof ChordSheetJS.ChordLyricsPair) {
+              if (item instanceof MyChordLyricsPair) {
                 return renderChordLyricsPair(item, key);
               }
 
               // Handle Tags
-              if (item instanceof ChordSheetJS.Tag && item.name) {
+              if (item instanceof MyTag && item.name) {
                 switch (item.name) {
                   case TITLE:
                     return (
@@ -246,7 +250,7 @@ const SongRender = (props: Props) => {
               }
 
               // Handle Comments
-              if (item instanceof ChordSheetJS.Comment && item.content) {
+              if (item instanceof MyComment && item.content) {
                 return (
                   <div key={key} className="comment">
                     {item.content}
