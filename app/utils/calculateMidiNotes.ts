@@ -45,11 +45,13 @@ export const calculateMidiNotes = (
     const maybeBassNoteMidi = midiNoteMap[bassNote];
     if (maybeBassNoteMidi) {
       const bassNoteMidi = maybeBassNoteMidi - 12;
-      // Return bass note first followed by the other MIDI notes
-      return [bassNoteMidi, ...midiFromSemitones];
+      // Add bass note only if it's not already in midiFromSemitones
+      if (!midiFromSemitones.includes(bassNoteMidi)) {
+        return [bassNoteMidi, ...midiFromSemitones];
+      }
     }
   }
 
-  // Return only the MIDI notes if no valid bass note is found
+  // Return only the MIDI notes if no valid bass note is found or if it's a duplicate
   return midiFromSemitones;
 };

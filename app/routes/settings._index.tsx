@@ -10,7 +10,7 @@ import {
 import { useFirebase } from "~/context/FirebaseContext";
 import { translatedLanguages } from "~/i18n/i18n";
 import { type loader as parentLoader } from "~/root";
-import { exportFile } from "~/utils/exportFile";
+import { downloadFile } from "~/utils/downloadFile";
 import pad from "~/utils/pad";
 import { useTranslation } from "react-i18next";
 import { Theme, useTheme } from "remix-themes";
@@ -102,7 +102,7 @@ export default function SettingsView() {
       const year = today.getFullYear();
       const filename = `backup-${year}_${month}_${day}`;
 
-      await exportFile("cache", "ChordMaster", filename, ".json", bundleString);
+      await downloadFile(filename, ".json", bundleString);
 
       toast({
         title: t("info"),

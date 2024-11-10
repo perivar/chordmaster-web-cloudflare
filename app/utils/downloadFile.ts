@@ -1,6 +1,4 @@
-export async function exportFile(
-  directoryType: string,
-  directoryName: string,
+export async function downloadFile(
   fileName: string,
   fileExtension: string,
   fileContent: string

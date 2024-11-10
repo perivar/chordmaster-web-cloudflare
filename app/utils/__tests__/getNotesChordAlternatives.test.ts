@@ -15,6 +15,7 @@ test("getNotesChordAlternatives1", () => {
     chordSemitones: [0, 4, 7],
     rootNote: "G",
     bassNote: "F#",
+    midiNotes: [42, 55, 59, 62],
   });
 });
 
@@ -32,6 +33,7 @@ test("getNotesChordAlternativesTonal1", () => {
     chordSemitones: [-1, 0, 4, 7],
     rootNote: "G",
     bassNote: "F#",
+    midiNotes: [42, 54, 55, 59, 62],
   });
 });
 
@@ -45,6 +47,7 @@ test("getNotesChordAlternatives2", () => {
     chordSemitones: [0, 7, 10, 14, 17],
     rootNote: "G",
     bassNote: undefined,
+    midiNotes: [55, 62, 65, 69, 72],
   });
 });
 
@@ -62,6 +65,7 @@ test("getNotesChordAlternativesTonal2", () => {
     chordSemitones: [0, 7, 10, 14, 17],
     rootNote: "G",
     bassNote: "",
+    midiNotes: [55, 62, 65, 69, 72],
   });
 });
 
@@ -79,6 +83,7 @@ test("getNotesChordAlternatives3", () => {
     chordSemitones: [0, 3, 6, 10],
     rootNote: "C",
     bassNote: "Gb",
+    midiNotes: [42, 48, 51, 54, 58],
   });
 });
 
@@ -96,6 +101,7 @@ test("getNotesChordAlternativesTonal3", () => {
     chordSemitones: [6, 10, 12, 15],
     rootNote: "C",
     bassNote: "Gb",
+    midiNotes: [42, 54, 58, 60, 63],
   });
 });
 
@@ -113,6 +119,7 @@ test("getNotesChordAlternatives4", () => {
     chordSemitones: [0, 3, 6, 10],
     rootNote: "D",
     bassNote: "Gb",
+    midiNotes: [42, 50, 53, 56, 60],
   });
 });
 
@@ -130,6 +137,7 @@ test("getNotesChordAlternativesTonal4", () => {
     chordSemitones: [-8, 0, 3, 6, 10],
     rootNote: "D",
     bassNote: "Gb",
+    midiNotes: [42, 50, 53, 56, 60],
   });
 });
 
@@ -147,6 +155,7 @@ test("getNotesChordAlternatives5", () => {
     chordSemitones: [0, 3, 6, 9, 11, 17, 20],
     rootNote: "C",
     bassNote: undefined,
+    midiNotes: [48, 51, 54, 57, 59, 65, 68],
   });
 });
 
@@ -164,6 +173,7 @@ test("getNotesChordAlternativesTonal5", () => {
     chordSemitones: [],
     rootNote: undefined,
     bassNote: undefined,
+    midiNotes: undefined,
   });
 });
 
@@ -181,6 +191,7 @@ test("getNotesChordAlternatives6", () => {
     chordSemitones: [0, 4, 7, 10, 13, 15, 21],
     rootNote: "C",
     bassNote: "Bb",
+    midiNotes: [46, 48, 52, 55, 58, 61, 63, 69],
   });
 });
 
@@ -198,5 +209,6 @@ test("getNotesChordAlternativesTonal6", () => {
     chordSemitones: [],
     rootNote: undefined,
     bassNote: undefined,
+    midiNotes: undefined,
   });
 });
