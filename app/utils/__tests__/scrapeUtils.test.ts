@@ -17,33 +17,39 @@ describe("cleanupChords", () => {
     expect(cleanupChords("G13/9")).toBe("G9");
   });
 
+  it("should replace 7+ with 7+5", () => {
+    expect(cleanupChords("E7+")).toBe("E7+5");
+    expect(cleanupChords("E9+")).toBe("E9+5");
+  });
+
   it("should remove parentheses from chords", () => {
     expect(cleanupChords("C7(b9)")).toBe("C7b9");
     expect(cleanupChords("Eb7(b5)")).toBe("Eb7b5");
+    expect(cleanupChords("Dm(maj7)")).toBe("Dmmaj7");
   });
 
-  it('should replace "-" with "b" for flat notes', () => {
-    expect(cleanupChords("F#m7-5")).toBe("F#m7b5");
-  });
+  // it('should replace "-" with "b" for flat notes', () => {
+  //   expect(cleanupChords("F#m7-5")).toBe("F#m7b5");
+  // });
 
-  it('should replace "+" with "#" for sharp notes', () => {
-    expect(cleanupChords("F#m7+5")).toBe("F#m7#5");
-  });
+  // it('should replace "+" with "#" for sharp notes', () => {
+  //   expect(cleanupChords("F#m7+5")).toBe("F#m7#5");
+  // });
 
-  it("should handle chords like E7+5-9", () => {
-    expect(cleanupChords("E7+5-9")).toBe("E7#5b9");
-  });
+  // it("should handle chords like E7+5-9", () => {
+  //   expect(cleanupChords("E7+5-9")).toBe("E7#5b9");
+  // });
 
-  it("should handle chords like E7-5+9", () => {
-    expect(cleanupChords("E7-5+9")).toBe("E7b5#9");
-  });
+  // it("should handle chords like E7-5+9", () => {
+  //   expect(cleanupChords("E7-5+9")).toBe("E7b5#9");
+  // });
 
   it("should work with mixed chords", () => {
     expect(cleanupChords("Cmaj7")).toBe("Cmaj7");
     expect(cleanupChords("Bb7/9")).toBe("Bb9");
-    expect(cleanupChords("Am7-5")).toBe("Am7b5");
-    expect(cleanupChords("G+7")).toBe("G#7");
-    expect(cleanupChords("Fdim7+5")).toBe("Fdim7#5");
+    expect(cleanupChords("Am7-5")).toBe("Am7-5");
+    expect(cleanupChords("G+7")).toBe("G+7");
+    expect(cleanupChords("Fdim7+5")).toBe("Fdim7+5");
   });
 
   it("should not modify chords without patterns", () => {
@@ -53,7 +59,7 @@ describe("cleanupChords", () => {
 });
 
 describe("cleanupUltimateGuitarChordsRaw", () => {
-  it("should replace [ch]H[/ch] with [ch]B[/ch]", () => {
+  it("should replace H with B", () => {
     const input = "[ch]H[/ch] [ch]Hm[/ch]";
     const expected = "[ch]B[/ch] [ch]Bm[/ch]";
     expect(cleanupUltimateGuitarChordsRaw(input)).toBe(expected);
@@ -71,41 +77,56 @@ describe("cleanupUltimateGuitarChordsRaw", () => {
     expect(cleanupUltimateGuitarChordsRaw(input)).toBe(expected);
   });
 
-  it("should remove parentheses from chords like C7(b9)", () => {
-    const input = "[ch]C7(b9)[/ch] [ch]Eb7(b5)[/ch]";
-    const expected = "[ch]C7b9[/ch] [ch]Eb7b5[/ch]";
-    expect(cleanupUltimateGuitarChordsRaw(input)).toBe(expected);
+  it("should replace 7+ with 7+5", () => {
+    expect(cleanupUltimateGuitarChordsRaw("[ch]E7+[/ch]")).toBe(
+      "[ch]E7+5[/ch]"
+    );
+    expect(cleanupUltimateGuitarChordsRaw("[ch]E9+[/ch]")).toBe(
+      "[ch]E9+5[/ch]"
+    );
   });
 
-  it("should handle E7+5-9 case", () => {
-    const input = "[ch]E7+5-9[/ch]";
-    const expected = "[ch]E7#5b9[/ch]";
-    expect(cleanupUltimateGuitarChordsRaw(input)).toBe(expected);
+  it("should remove parentheses from chords", () => {
+    expect(cleanupUltimateGuitarChordsRaw("[ch]C7(b9)[/ch]")).toBe(
+      "[ch]C7b9[/ch]"
+    );
+    expect(cleanupUltimateGuitarChordsRaw("[ch]Eb7(b5)[/ch]")).toBe(
+      "[ch]Eb7b5[/ch]"
+    );
+    expect(cleanupUltimateGuitarChordsRaw("[ch]Dm(maj7)[/ch]")).toBe(
+      "[ch]Dmmaj7[/ch]"
+    );
   });
 
-  it("should handle E7-5+9 case", () => {
-    const input = "[ch]E7-5+9[/ch]";
-    const expected = "[ch]E7b5#9[/ch]";
-    expect(cleanupUltimateGuitarChordsRaw(input)).toBe(expected);
-  });
+  // it("should handle E7+5-9 case", () => {
+  //   const input = "[ch]E7+5-9[/ch]";
+  //   const expected = "[ch]E7#5b9[/ch]";
+  //   expect(cleanupUltimateGuitarChordsRaw(input)).toBe(expected);
+  // });
 
-  it("should replace - with b in chords like F#m7-5", () => {
-    const input = "[ch]F#m7-5[/ch]";
-    const expected = "[ch]F#m7b5[/ch]";
-    expect(cleanupUltimateGuitarChordsRaw(input)).toBe(expected);
-  });
+  // it("should handle E7-5+9 case", () => {
+  //   const input = "[ch]E7-5+9[/ch]";
+  //   const expected = "[ch]E7b5#9[/ch]";
+  //   expect(cleanupUltimateGuitarChordsRaw(input)).toBe(expected);
+  // });
 
-  it("should replace + with # in chords like F#m7+5", () => {
-    const input = "[ch]F#m7+5[/ch]";
-    const expected = "[ch]F#m7#5[/ch]";
-    expect(cleanupUltimateGuitarChordsRaw(input)).toBe(expected);
-  });
+  // it("should replace - with b in chords like F#m7-5", () => {
+  //   const input = "[ch]F#m7-5[/ch]";
+  //   const expected = "[ch]F#m7b5[/ch]";
+  //   expect(cleanupUltimateGuitarChordsRaw(input)).toBe(expected);
+  // });
 
-  it("should handle combined + and - with slashes", () => {
-    const input = "[ch]A7+5-9/G[/ch]";
-    const expected = "[ch]A7#5b9/G[/ch]";
-    expect(cleanupUltimateGuitarChordsRaw(input)).toBe(expected);
-  });
+  // it("should replace + with # in chords like F#m7+5", () => {
+  //   const input = "[ch]F#m7+5[/ch]";
+  //   const expected = "[ch]F#m7#5[/ch]";
+  //   expect(cleanupUltimateGuitarChordsRaw(input)).toBe(expected);
+  // });
+
+  // it("should handle combined + and - with slashes", () => {
+  //   const input = "[ch]A7+5-9/G[/ch]";
+  //   const expected = "[ch]A7#5b9/G[/ch]";
+  //   expect(cleanupUltimateGuitarChordsRaw(input)).toBe(expected);
+  // });
 });
 
 describe("removeTabs", () => {
@@ -248,8 +269,14 @@ describe("cleanupDoubleChordLines", () => {
   });
 
   it("should handle complex chords with extensions and slash chords", () => {
-    const input = `Cmaj7 G7b9\nAm6 F#7b5\nFmaj7/A C#7b5/F\n`;
-    const expected = `Cmaj7 G7b9\n\nAm6 F#7b5\n\nFmaj7/A C#7b5/F\n`;
+    const input = `Cmaj7 E7+5 G7b9\nAm6 F#7b5\nFmaj7/A C#7b5/F\n`;
+    const expected = `Cmaj7 E7+5 G7b9\n\nAm6 F#7b5\n\nFmaj7/A C#7b5/F\n`;
+    expect(cleanupDoubleChordLines(input)).toBe(expected);
+  });
+
+  it("should handle chords with parenthesis", () => {
+    const input = `C#(addb6)\nDm(maj7) C7(b9)\nC#7(-9)/F\n`;
+    const expected = `C#(addb6)\n\nDm(maj7) C7(b9)\n\nC#7(-9)/F\n`;
     expect(cleanupDoubleChordLines(input)).toBe(expected);
   });
 

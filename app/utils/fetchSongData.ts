@@ -2,14 +2,19 @@ import ChordSheetJS from "chordsheetjs";
 
 import CustomUltimateGuitarParser from "./CustomUltimateGuitarParser";
 import CustomUltimateGuitarRawParser from "./CustomUltimateGuitarRawParser";
-import { getAZChordContent, parseUltimateGuitar } from "./scrapeUtils";
+import {
+  getAZChordContent,
+  getNorTabsChordContent,
+  parseUltimateGuitar,
+} from "./scrapeUtils";
 
 export const fetchSongData = async (query: string) => {
   // example urls:
-  // azchords:
-  // https://www.chordie.com/chord.pere/www.azchords.com/b/billyjoel-tabs-473/justthewayyouare-tabs-894021.html
-  // https://www.azchords.com/b/billyjoel-tabs-473/justthewayyouare-tabs-894021.html
 
+  // www.chordie.com:
+  // https://www.chordie.com/chord.pere/www.azchords.com/b/billyjoel-tabs-473/justthewayyouare-tabs-894021.html
+
+  // www.azchords.com:
   // const url =
   //   'https://www.azchords.com/b/billyjoel-tabs-473/justthewayyouare-tabs-894021.html';
   // const url =
@@ -19,7 +24,7 @@ export const fetchSongData = async (query: string) => {
   // const url =
   //   'https://www.azchords.com/c/catstevens-tabs-722/moonshadow-tabs-211671.html';
 
-  // ultimate-guitar.com:
+  // tabs.ultimate-guitar.com:
   // const url = 'https://tabs.ultimate-guitar.com/tab/266333';
   // const url =
   //   'https://tabs.ultimate-guitar.com/tab/cat-stevens/wild-world-chords-992169';
@@ -36,6 +41,11 @@ export const fetchSongData = async (query: string) => {
   // const url =
   //   'https://tabs.ultimate-guitar.com/tab/chris-tomlin/how-great-is-our-god-chords-166109';
 
+  // nortabs.net:
+  // const url =
+  //   'https://nortabs.net/tab/6878/';
+
+  // pathawks/Christmas-Songs:
   // const url =
   //   'https://raw.githubusercontent.com/pathawks/Christmas-Songs/master/Angels%20From%20The%20Realms%20Of%20Glory.cho';
   // const url =
@@ -123,6 +133,25 @@ export const fetchSongData = async (query: string) => {
       url,
       source: "Public Domain Christmas Songs",
     };
+  } else if (url.startsWith("https://nortabs.net")) {
+    const htmlResult = await fetchResult.text();
+
+    const { artist, songName, cleanedContent } =
+      getNorTabsChordContent(htmlResult);
+
+    if (!artist || !songName || !cleanedContent) {
+      throw new Error("Returned undefined for artist, song name or content!");
+    }
+
+    const chordSheetSong = new CustomUltimateGuitarParser({
+      preserveWhitespace: false,
+    }).parse(cleanedContent);
+
+    const chordPro = new ChordSheetJS.ChordProFormatter().format(
+      chordSheetSong
+    );
+
+    return { artist, songName, chordPro, url, source: "nortabs" };
   } else {
     throw new Error("Unsupported URL");
   }

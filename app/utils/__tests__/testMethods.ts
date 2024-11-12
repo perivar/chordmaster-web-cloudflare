@@ -1,8 +1,7 @@
 import fs from "fs";
-import { Song } from "chordsheetjs";
 
 export const writeSongAsJson = (
-  song: Song,
+  song: unknown,
   doDebugToFile: boolean,
   filePath = "debug/debugSong.json"
 ) => {
@@ -19,4 +18,20 @@ export const writeSongAsText = (
   if (doDebugToFile) {
     fs.writeFileSync(filePath, plainText);
   }
+};
+
+export function toPlainObject(obj: unknown): unknown {
+  return JSON.parse(JSON.stringify(obj));
+}
+
+export const fetchUrl = async (url: string) => {
+  const header = {
+    method: "GET",
+    headers: {},
+  };
+
+  const fetchResult = await fetch(url, header);
+  const htmlResult = await fetchResult.text();
+
+  return htmlResult;
 };

@@ -13,11 +13,9 @@ import {
   TAB,
   VERSE,
 } from "./ChordSheetConstants";
+import { getChordLineRegex } from "./getChordRegex";
 
 type ParagraphType = "verse" | "chorus" | "none" | "indeterminate" | "tab";
-
-// for good example using several regex'es see
-// https://github.com/martijnversluis/ChordSheetJS/blob/check-chord-parsing/src/chord.ts
 
 // see https://github.com/martijnversluis/ChordSheetJS/blob/master/src/parser/ultimate_guitar_parser.ts
 // const VERSE_HEADER_REGEX = /^\[Verse(.*?)\]/i;
@@ -44,9 +42,9 @@ const endSectionTags: Record<string, string> = {
 // see https://github.com/martijnversluis/ChordSheetJS/blob/master/src/parser/chord_sheet_parser.ts
 const WHITE_SPACE = /\s/;
 
-// https://gist.github.com/hyvyys/a8601e11af1ba145595f82896393d6f1
-const CHORD_LINE_REGEX =
-  /^\s*([A-H][b#]?(?:(?:5|dim(5|7)?|aug5?|\+5?|-5?)|(?:(?:mi?n?)?(?:(?:2|4|6|7|9|11|13|6\/9)|(?:maj?|Ma?j?)?(?:6|7|9|11|13))?)(?:\\((?:[b-](5|6|9|13)|[#+](4|5|9|11))\\)|(?:[b-](5|6|9|13)|[#+](4|5|9|11)))*(?:sus(2|4|24|2sus4)?)?(?:\\((?:[b-](5|6|9|13)|[#+](4|5|9|11))\\)|(?:[b-](5|6|9|13)|[#+](4|5|9|11)))*(?:add[b#]?(?:2|4|6|7|9|11|13))?)(?:\/[A-H][b#]?)?(?=$| )(\s|$)+)+(\s|$)+/gi;
+// const CHORD_LINE_REGEX =
+//   /^\s*([A-H][b#]?(?:(?:5|dim(5|7)?|aug5?|\+5?|-5?)|(?:(?:mi?n?)?(?:(?:2|4|6|7|9|11|13|6\/9)|(?:maj?|Ma?j?)?(?:6|7|9|11|13))?)(?:\\((?:[b-](5|6|9|13)|[#+](4|5|9|11))\\)|(?:[b-](5|6|9|13)|[#+](4|5|9|11)))*(?:sus(2|4|24|2sus4)?)?(?:\\((?:[b-](5|6|9|13)|[#+](4|5|9|11))\\)|(?:[b-](5|6|9|13)|[#+](4|5|9|11)))*(?:add[b#]?(?:2|4|6|7|9|11|13))?)(?:\/[A-H][b#]?)?(?=$| )(\s|$)+)+(\s|$)+/gi;
+const CHORD_LINE_REGEX = getChordLineRegex("gi");
 
 /**
  * Parses an Ultimate Guitar chord sheet with metadata
@@ -86,12 +84,10 @@ class CustomUltimateGuitarParser {
     // if (this.isStartOfVerseHeader(line)) {
     //   this.startNewLine();
     //   const verse = line.match(VERSE_HEADER_REGEX)?.[1];
-    //   // console.log('Found verse:', verse);
     //   this.startSection(VERSE, verse);
     // } else if (this.isStartOfChorusHeader(line)) {
     //   this.startNewLine();
     //   const chorus = line.match(CHORUS_HEADER_REGEX)?.[1];
-    //   // console.log('Found chorus:', chorus);
     //   this.startSection(CHORUS, chorus);
     // } else
     if (HEADER_BRACKETS_REGEX.test(line)) {
@@ -208,15 +204,12 @@ class CustomUltimateGuitarParser {
   }
 
   parseNonEmptyLine(line: string) {
-    // console.log(`${line}`);
-
     if (!this.songLine) throw new Error("Expected this.songLine to be present");
 
     this.chordLyricsPair = this.songLine.addChordLyricsPair();
 
     // if the line look like the first guitar tab line, do not process as lyrics
     if (GUITAR_TAB_LINE_REGEX.test(line) && !this.waitEndOfGuitarTabs) {
-      // console.log('^ This is a first guitar line!');
       this.waitEndOfGuitarTabs = true;
 
       // start a guitar tab section
@@ -229,7 +222,6 @@ class CustomUltimateGuitarParser {
 
       // if the line look like the last guitar tab line, do not process as lyrics
     } else if (GUITAR_TAB_LINE_REGEX.test(line) && this.waitEndOfGuitarTabs) {
-      // console.log('^ This is a last guitar line!');
       this.waitEndOfGuitarTabs = false;
 
       this.parseLyricsRaw(line);
@@ -238,15 +230,10 @@ class CustomUltimateGuitarParser {
 
       // check for chord line
     } else if (CHORD_LINE_REGEX.test(line) && this.hasNextLine()) {
-      // console.log('^ This is a chord line and there is another line');
-
       const nextLine = this.readLine();
 
       // if nextLine also is a chord line, do not process as lyrics
       if (CHORD_LINE_REGEX.test(nextLine)) {
-        // console.log(`${nextLine}`);
-        // console.log('^ Second line is also a chord line!');
-
         // first add the chords
         this.parseLyricsWithChordsRaw(line, "");
 
@@ -260,8 +247,6 @@ class CustomUltimateGuitarParser {
         GUITAR_TAB_LINE_REGEX.test(nextLine) &&
         !this.waitEndOfGuitarTabs
       ) {
-        // console.log(`${nextLine}`);
-        // console.log('^ Second line is a first guitar line!');
         this.waitEndOfGuitarTabs = true;
 
         // first add the chords
@@ -277,11 +262,6 @@ class CustomUltimateGuitarParser {
 
         // nextLine is likely lyrics
       } else {
-        // console.log(`${nextLine}`);
-        // console.log(
-        //   '^ Second line is likely lyrics - adding chord lyrics line!'
-        // );
-
         // add a normal chord and lyrics line
         this.parseLyricsWithChordsRaw(line, nextLine);
       }
@@ -290,15 +270,11 @@ class CustomUltimateGuitarParser {
     } else {
       // we check for a chord line with a second line above, but if it's the very last line, we process it here
       if (CHORD_LINE_REGEX.test(line)) {
-        // console.log('^ This is a chord line as the last line!');
-
         // add the chords
         this.parseLyricsWithChordsRaw(line, "");
 
         //if the line is not a guitar tab line it's probably just a text line
       } else {
-        // console.log('^ This is a normal text line!');
-
         // add a normal lyrics line
         this.parseLyricsRaw(line);
       }
