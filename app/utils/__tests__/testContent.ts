@@ -109,6 +109,7 @@ I can see him dyin'
 Chorus:
 [ch]H[/ch]       [ch]F#[/ch]      [ch]Hadd9/F[/ch]
 [ch]H[/ch]       [ch]F#[/ch]      [ch]Hm7/F[/ch]
+[ch]C#m7/Hb[/ch]
 
 [Verse]
 
@@ -267,6 +268,7 @@ I can see him dyin'
 
 [B][F#][Bm7/F]
 
+[C#m7/Bb]
 
 {comment: Verse}
 
@@ -415,6 +417,7 @@ B F# B2/F
 
 B F# Bm7/F
 
+C#m7/Bb
 
 [Verse]
 

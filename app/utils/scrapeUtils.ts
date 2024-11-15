@@ -1,6 +1,11 @@
 import he from "he";
 
-import { getDoubleChordLinesRegex } from "./getChordRegex";
+import {
+  getChordLineRegex,
+  getChordRegex,
+  getDoubleChordLinesRegex,
+  getHeaderRegex,
+} from "./getChordRegex";
 
 export const getAZChordContent = (htmlResult: string, isRemoveTabs = false) => {
   const { artist, songName, content } = parseAZChords(htmlResult);
@@ -213,54 +218,31 @@ export const cleanupUltimateGuitarTab = (content: string) => {
 export const cleanupUltimateGuitarChordsRaw = (content: string) => {
   let removed = content;
 
-  // First fix H and Hm chords
-  const regexH = /\[ch\][H|h](m?.*?)\[\/ch\]/g;
+  // Replace european H with B
+  const regexH = /\[ch\][Hh](.*?)\[\/ch\]/g;
   removed = removed.replace(regexH, "[ch]B$1[/ch]");
 
-  // Then handle chords with /H
-  const regexSlashH =
-    /(?:\[ch\](?:([A-H][#b]?[^/\s]*)\/[hH]([#b]?))\[\/ch\])+/g;
+  // Replace european /H with /B
+  const regexSlashH = /\[ch\]([^\[]*?)\/[Hh]([#b])?\[\/ch\]/g;
   removed = removed.replace(regexSlashH, "[ch]$1/B$2[/ch]");
 
-  // Replace M with maj
-  const regexM =
-    /\[ch\]([A-G](?:b|#)?)M([0-9]*(?:sus)?[0-9]*(?:b|#)?[0-9]*(\/[A-G](?:b|#)?)?)\[\/ch\]/g;
+  // Replace isolated "M" with "Maj" (unless it's already "Maj")
+  const regexM = /\[ch\]([^\[]*?)M(?!aj)([^\[]*?)\[\/ch\]/g;
   removed = removed.replace(regexM, "[ch]$1maj$2[/ch]");
 
   // replace chords like E7+ with E7+5
   const regexPlusMissing5 =
-    /\[ch\]([A-G](?:b|#)?(?:maj|min|m|M)?[0-9]*)(\+|aug)(?![0-9])\[\/ch\]/g;
-  removed = removed.replace(regexPlusMissing5, "[ch]$1$25[/ch]");
+    /\[ch\]([^\[]*?)(\+|aug)(?![0-9])([^\[]*?)\[\/ch\]/g;
+  removed = removed.replace(regexPlusMissing5, "[ch]$1$25$3[/ch]");
 
-  // Remove the parenthesis from chords like Dm(maj7), C7(b9) and Eb7(b5)
-  const regexParenth =
-    /\[ch\]([A-G])(#|b)?(maj|min|m|M|\+|-|dim|aug)?([0-9]*)(?:\((maj|min|m|M|\+|-|dim|aug|sus)?([0-9]*)(b|#)?([0-9]*)\))?(\/[A-G](?:b|#)?)?\[\/ch\]/g;
-  removed = removed.replace(regexParenth, "[ch]$1$2$3$4$5$6$7$8$9[/ch]");
-
-  // Disabled - and + substitution, since we do not have a good way to handle the difference between
-  // C+ and C# or E- and Eb
-  //
-  // Process complex cases first (combined + and - chords) (e.g., E7+5-9 or E7-5+9)
-  // Replace - with b and + with # from chords like E7+5-9
-  // const regexPlusMinus =
-  //   /\[ch\]([A-G])(#|b)?(maj|min|m|M|\+|-|dim|aug)?([0-9]*)(sus)?(?:\+)([0-9]*)(?:-)([0-9]*)(\/[A-G](?:b|#)?)?\[\/ch\]/g;
-  // removed = removed.replace(regexPlusMinus, "[ch]$1$2$3$4#$5$6b$7$8[/ch]");
-
-  // Replace - with b and + with # from chords like E7-5+9
-  // const regexMinusPlus =
-  //   /\[ch\]([A-G])(#|b)?(maj|min|m|M|\+|-|dim|aug)?([0-9]*)(sus)?(?:-)([0-9]*)(?:\+)([0-9]*)(\/[A-G](?:b|#)?)?\[\/ch\]/g;
-  // removed = removed.replace(regexMinusPlus, "[ch]$1$2$3$4b$5$6#$7$8[/ch]");
-
-  // Handle simpler cases after combined ones
-  // Replace - with b from chords like F#m7-5
-  // const regexMinus =
-  //   /\[ch\]([A-G])(#|b)?(maj|min|m|M|\+|-|dim|aug)?([0-9]*)(sus)?([0-9]*)(?:-)([0-9]*)(\/[A-G](?:b|#)?)?\[\/ch\]/g;
-  // removed = removed.replace(regexMinus, "[ch]$1$2$3$4$5$6b$7$8[/ch]");
-
-  // Replace + with # from chords like F#m7+5
-  // const regexPlus =
-  //   /\[ch\]([A-G])(#|b)?(maj|min|m|M|\+|-|dim|aug)?([0-9]*)(sus)?([0-9]*)(?:\+)([0-9]*)(\/[A-G](?:b|#)?)?\[\/ch\]/g;
-  // removed = removed.replace(regexPlus, "[ch]$1$2$3$4$5$6#$7$8[/ch]");
+  // Remove unwanted characters like parentheses, commas, and spaces
+  // from chords like Dm(maj7), C7(b9) and Eb7(b5)
+  const regexUnwanted = /\[ch\]([^\[]+?)\[\/ch\]/g;
+  removed = removed.replace(regexUnwanted, (_match, chord) => {
+    // Remove unwanted characters like parentheses, commas, and spaces
+    const cleanedChord = chord.replace(/[\(\),\s]+/g, "");
+    return `[ch]${cleanedChord}[/ch]`;
+  });
 
   return removed;
 };
@@ -278,19 +260,8 @@ export const removeCarriageReturn = (content: string) => {
 export const removeTabs = (content: string) => {
   let removed = content;
 
-  // when using /gm we can use ^ and $ to match single lines
-  // const regexTabline = /^(?:e|B|G|D|A|E)\|.+?\|.*\r?\n|\r$/gm;
-
-  // for multi lines we can't
-  // const regex = /\w\|.+?\|\s.*/g;
-  // const regex = /\w\|.+?\|\s.*[\r|\n]/g;
-
-  // this version removes too much!!
-  // const regexTabline = /^(?:e|B|G|D|A|E)(?:\||\s).+?(?:\||\s).*\r?\n|\r$/gm;
-
   // this version uses a variant found on:
   // https://github.com/briancaffey/briancaffey.github.io/blob/master/content/2018/04/26/generating-music-from-guitar-tabs-with-python.html.md
-  // re.findall(r"(?:[E,B,G,D,A,-]+\|[0-9-h|]+\n){6}",contents)
   // added \|? to also support |E| type of tabs
   const regexTabline = /(?:\|?[EBGDA-]+\|.+?\|.*\r?\n|\r){6}/gim;
 
@@ -300,80 +271,58 @@ export const removeTabs = (content: string) => {
 };
 
 export const cleanupChords = (content: string) => {
-  let removed = content;
+  let cleaned = content;
 
-  // Chord Regex Examples:
-  // const regex =
-  //   /[A-G](b|#)?(maj|min|m|M|\+|-|dim|aug)?[0-9]*(sus)?[0-9]*(b|#)?[0-9]*(\/[A-G](b|#)?)?/g;
+  const replaceChords = (chords_content: string) => {
+    const regexChord = getChordRegex();
+    return chords_content.replace(regexChord, chord => {
+      let removed = chord;
 
-  // chord with []
-  // https://regex101.com/r/wEQajG/1
-  // /\[([A-G][#b]?(maj|m)?[27]?(add|aug|dim|sus)?[2-9]?)\]/g
+      // Replace european H with B
+      const regexH = /H/g;
+      removed = removed.replace(regexH, "B");
 
-  // from https://github.com/martijnversluis/ChordSheetJS/blob/check-chord-parsing/src/chord.ts
-  // const chordRegex =
-  //   /^(?<base>[A-G])(?<modifier>#|b)?(?<suffix>[^/\s]*)(\/(?<bassBase>[A-G])(?<bassModifier>#|b)?)?$/i;
+      // Replace isolated "M" with "Maj" (unless it's already "Maj")
+      const regexM = /M(?!aj)/g;
+      removed = removed.replace(regexM, "maj");
 
-  // chords
-  // [\s\.\)-\/\]]*([ABCDEFGH][b#]?[m]?[\(]?(2|5|6|7|9|11|13|6\/9|7\-5|7\-9|7\#5|7\#9|7\+5|7\+9|7b5|7b9|7sus2|7sus4|add2|add4|add9|aug|dim|dim7|m\|maj7|m6|m7|m7b5|m9|m11|m13|maj|maj7|maj9|maj11|maj13|mb5|m|sus|sus2|sus4){0,2}(\/[A-H])?(\))?)[^\s\.\)-\/\]]*
+      // Remove unwanted characters like parentheses, commas, and spaces
+      const regexUnwanted = /[\(\),\s]+/g;
+      removed = removed.replace(regexUnwanted, "");
 
-  // replace M with maj
-  const regexM =
-    /([A-G](?:b|#)?)M([0-9]*(?:sus)?[0-9]*(?:b|#)?[0-9]*(\/[A-G](?:b|#)?)?)/g;
-  removed = removed.replace(regexM, "$1maj$2");
+      return removed;
+    });
+  };
+
+  cleaned = replaceChords(cleaned);
 
   // replace 7/9 with only 9
-  const regex79 =
-    /([A-G](?:b|#)?(?:maj|min|m|M|\+|-|dim|aug)?)([0-9]+)\/([0-9]+)/g;
-  removed = removed.replace(regex79, "$1$3");
+  const regex79 = /([A-H][b#]?.*?)(?:[0-9]+)\/([0-9]+)/g;
+  cleaned = cleaned.replace(regex79, "$1$2");
 
   // replace chords like E7+ with E7+5
-  const regexPlusMissing5 =
-    /([A-G](?:b|#)?(?:maj|min|m|M)?[0-9]*)(\+|aug)(?![0-9])/g;
-  removed = removed.replace(regexPlusMissing5, "$1$25");
+  const regexPlusMissing5 = /([A-H][b#]?.*?\+)(?![0-9])/g;
+  cleaned = cleaned.replace(regexPlusMissing5, "$15");
 
-  // Remove the parenthesis from chords like Dm(maj7), C7(b9) and Eb7(b5)
-  const regexParenth =
-    /([A-G])(#|b)?(maj|min|m|M|\+|-|dim|aug)?([0-9]*)(?:\((maj|min|m|M|\+|-|dim|aug|sus)?([0-9]*)(b|#)?([0-9]*)\))?(\/[A-G](?:b|#)?)?/g;
-  removed = removed.replace(regexParenth, "$1$2$3$4$5$6$7$8$9");
-
-  // Disabled - and + substitution, since we do not have a good way to handle the difference between
-  // C+ and C# or E- and Eb
-
-  // Process complex cases first (combined + and - chords) (e.g., E7+5-9 or E7-5+9)
-  // Replace - with b and + with # from chords like E7+5-9
-  // const regexPlusMinus =
-  //   /([A-G])(#|b)?(maj|min|m|M|\+|-|dim|aug)?([0-9]*)(sus)?(?:\+)([0-9]+)(?:-)([0-9]+)(\/[A-G](?:b|#)?)?/g;
-  // removed = removed.replace(regexPlusMinus, "$1$2$3$4#$5$6b$7$8");
-
-  // Replace - with b and + with # from chords like E7-5+9
-  // const regexMinusPlus =
-  //   /([A-G])(#|b)?(maj|min|m|M|\+|-|dim|aug)?([0-9]*)(sus)?(?:-)([0-9]+)(?:\+)([0-9]+)(\/[A-G](?:b|#)?)?/g;
-  // removed = removed.replace(regexMinusPlus, "$1$2$3$4b$5$6#$7$8");
-
-  // Handle simpler cases after combined ones
-  // Replace - with b from chords like F#m7-5
-  // const regexMinus =
-  //   /([A-G])(#|b)?(maj|min|m|M|\+|-|dim|aug)?([0-9]*)(sus)?([0-9]*)(?:-)([0-9]+)(\/[A-G](?:b|#)?)?/g;
-  // removed = removed.replace(regexMinus, "$1$2$3$4$5$6b$7$8");
-
-  // Replace + with # from chords like F#m7+5
-  // const regexPlus =
-  //   /([A-G])(#|b)?(maj|min|m|M|\+|-|dim|aug)?([0-9]*)(sus)?([0-9]*)(?:\+)([0-9]+)(\/[A-G](?:b|#)?)?/g;
-  // removed = removed.replace(regexPlus, "$1$2$3$4$5$6#$7$8");
-
-  return removed;
+  return cleaned;
 };
 
 export const cleanupHeaders = (content: string) => {
   let removed = content;
 
-  // this regex matches a patterns of [something] + one or more newlines and a chord line
+  // match a pattern of [something] + one or more newlines and a chord line
   // used to remove several newlines before a chordline
-  const regHeader =
-    /(\[(?:[^\]]+)\])(?:\r?\n|\r){2,}^([^\S\r\n]*(?:(?:[A-G])(?:#|b)?(?:[^/\s]*)(?:\/(?:[A-G])(?:#|b)?)?))/gm;
 
-  removed = removed.replace(regHeader, "$1\n$2");
+  const regheader = getHeaderRegex();
+  const regLineBreak = /(?:\r?\n|\r){2,}/; // Match two or more consecutive line breaks
+  const chordLinePattern = getChordLineRegex(); // Match a chord line (e.g., C#m7, F#7/G#)
+
+  const regHeaderChordLine = new RegExp(
+    `(${regheader.source})${regLineBreak.source}(${chordLinePattern.source})`,
+    "gm"
+  );
+
+  removed = removed.replace(regHeaderChordLine, "$1\n$2");
 
   return removed;
 };
