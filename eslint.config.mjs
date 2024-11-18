@@ -1,4 +1,3 @@
-import { fixupPluginRules } from "@eslint/compat";
 import eslintJs from "@eslint/js";
 import pluginImport from "eslint-plugin-import";
 import pluginJsxA11y from "eslint-plugin-jsx-a11y";
@@ -24,6 +23,7 @@ export default eslintTs.config(
     ],
   },
   {
+    // Base ESLint configuration for all files
     ...eslintJs.configs.recommended,
     ...pluginPrettierRecommended,
     languageOptions: {
@@ -42,10 +42,13 @@ export default eslintTs.config(
     },
   },
   {
+    // React-specific settings for .js, .jsx, .ts, .tsx files
     files: ["**/*.{js,jsx,ts,tsx}"],
     ...pluginReactRecommended,
     ...pluginReactJSXRuntime,
+    extends: [...pluginTailwind.configs["flat/recommended"]],
     rules: {
+      // React-specific rules
       ...pluginReactRecommended.rules,
       ...pluginReactJSXRuntime.rules,
       ...pluginReact.configs.recommended.rules,
@@ -65,10 +68,9 @@ export default eslintTs.config(
     },
     plugins: {
       react: pluginReact,
-      "react-hooks": fixupPluginRules(pluginReactHooks),
+      "react-hooks": pluginReactHooks,
       ["jsx-a11y"]: pluginJsxA11y,
     },
-    extends: [...pluginTailwind.configs["flat/recommended"]],
     settings: {
       react: {
         version: "detect",
@@ -84,12 +86,13 @@ export default eslintTs.config(
     },
   },
   {
+    // TypeScript-specific settings for .ts, .tsx files
     files: ["**/*.{ts,tsx}"],
+    extends: [...eslintTs.configs.recommended],
     plugins: {
       import: pluginImport,
       "unused-imports": pluginUnusedImports,
     },
-    extends: [...eslintTs.configs.recommended],
     settings: {
       "import/internal-regex": "^~/",
       "import/resolver": {
@@ -102,6 +105,7 @@ export default eslintTs.config(
       },
     },
     rules: {
+      // Import and TypeScript-specific rules
       "unused-imports/no-unused-imports": "warn",
       "@typescript-eslint/no-unused-vars": [
         "warn",
@@ -127,6 +131,7 @@ export default eslintTs.config(
     },
   },
   {
+    // ESLint configuration for the config file itself (eslint.config.mjs)
     files: ["eslint.config.mjs"],
     languageOptions: {
       globals: {
