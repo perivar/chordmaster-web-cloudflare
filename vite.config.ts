@@ -6,10 +6,13 @@ import { remixDevTools } from "remix-development-tools";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
+declare module "@remix-run/cloudflare" {
+  interface Future {
+    v3_singleFetch: true;
+  }
+}
+
 export default defineConfig({
-  ssr: {
-    noExternal: ["chord-symbol"], // ensures chord-symbol is bundled
-  },
   plugins: [
     remixDevTools(),
     remixCloudflareDevProxy(),
@@ -18,8 +21,13 @@ export default defineConfig({
         v3_fetcherPersist: true,
         v3_relativeSplatPath: true,
         v3_throwAbortReason: true,
+        v3_singleFetch: true,
+        v3_lazyRouteDiscovery: true,
       },
     }),
     tsconfigPaths(),
   ],
+  ssr: {
+    noExternal: ["chord-symbol"], // ensures chord-symbol is bundled
+  },
 });

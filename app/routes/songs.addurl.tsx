@@ -1,4 +1,4 @@
-// app/routes/songs._addurl.tsx
+// app/routes/songs.addurl.tsx
 
 import { useEffect, useRef, useState } from "react";
 import { LoaderFunctionArgs } from "@remix-run/cloudflare";
@@ -53,12 +53,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
       songData: { artist, songName, chordPro, source, url },
     });
   } catch (error) {
+    let message = "";
     if (error instanceof Error) {
-      return json({
-        loaderError: error.message,
-        songData: null,
-      });
+      message = error.message;
     }
+    return json({
+      loaderError: message,
+      songData: null,
+    });
   }
 }
 

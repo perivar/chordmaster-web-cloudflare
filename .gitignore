@@ -14,3 +14,4 @@ scripts/download-file.js
 public/service-worker.js
 coverage
 debug
+tsconfig.tsbuildinfo
