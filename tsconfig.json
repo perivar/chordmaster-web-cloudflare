@@ -37,6 +37,7 @@
     },
 
     // Vite takes care of building everything, not tsc.
+    // "outDir": "./build-tmp"
     "noEmit": true
   }
 }

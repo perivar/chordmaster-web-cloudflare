@@ -21,12 +21,7 @@ import ConfirmProvider from "./components/layout/confirm-provider";
 import LoadingIndicator from "./components/LoadingIndicator";
 import ResponsiveNavBar from "./components/ResponsiveNavBar";
 import { Toaster } from "./components/ui/toaster";
-import {
-  AppContextProvider,
-  loadStateFromLocalStorage,
-  setStateReducer,
-  useAppContext,
-} from "./context/AppContext";
+import { AppContextProvider, useAppContext } from "./context/AppContext";
 import useFirestoreMethods from "./hooks/useFirestoreMethods";
 import { themeSessionResolver } from "./theme.sessions.server";
 
@@ -187,15 +182,15 @@ export default function App() {
     if (user) {
       // check if the state exists in local storage
       // if not, it does not exist or has expired
-      const persistedState = loadStateFromLocalStorage(user);
+      // const persistedState = loadStateFromLocalStorage(user);
 
-      if (persistedState) {
-        // If a persisted state exists, update the app's state
-        dispatch(setStateReducer(persistedState));
-      } else {
-        // If no persisted state, load the necessary data
-        loadData();
-      }
+      // if (persistedState) {
+      // If a persisted state exists, update the app's state
+      // dispatch(setStateReducer(persistedState));
+      // } else {
+      // If no persisted state, load the necessary data
+      loadData();
+      // }
     }
   }, [user]);
 

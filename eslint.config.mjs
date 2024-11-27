@@ -18,6 +18,7 @@ export default eslintTs.config(
       ".cache",
       ".env",
       "build",
+      "build-tmp",
       "public",
       "*.config.ts",
     ],
