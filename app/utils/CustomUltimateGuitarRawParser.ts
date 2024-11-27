@@ -1,4 +1,4 @@
-import ChordSheetJS, { ChordLyricsPair, Line, Song } from "chordsheetjs";
+import ChordSheetJS, { ChordSheetParser, Song } from "chordsheetjs";
 
 import {
   COMMENT,
@@ -36,9 +36,6 @@ const HEADER_PARANT_REGEX =
 // https://stackoverflow.com/questions/3891641/regex-test-only-works-every-other-time
 const GUITAR_TAB_LINE_REGEX = /^(?:\|?e(?:\s|\|)?-[^\n\r]+)$/i;
 
-// see https://github.com/martijnversluis/ChordSheetJS/blob/master/src/parser/chord_sheet_parser.ts
-const WHITE_SPACE = /\s/;
-
 // as long as it contains at least one [ch][/ch] tag, it's a chord line
 const CHORD_LINE_REGEX = /\[ch\]([^[]+)\[\/ch\]/;
 
@@ -49,33 +46,20 @@ const CHORD_LINE_REGEX = /\[ch\]([^[]+)\[\/ch\]/;
  * support for many variations. Besides that, some chordpro feature have been ported back
  * to ChordsOverWordsParser, which adds some interesting functionality.
  */
-class CustomUltimateGuitarRawParser {
+class CustomUltimateGuitarRawParser extends ChordSheetParser {
   // this is used to find sections that end with a newline
-  currentSectionType: string | null = null;
+  private currentSectionType: string | null = null;
 
   // this is used to check whether we are processing guitar tabs
-  waitEndOfGuitarTabs: boolean = false;
+  private waitEndOfGuitarTabs: boolean = false;
 
   // this is used to check whether we are processing tab sections
-  waitEndOfTabSection: boolean = false;
+  private waitEndOfTabSection: boolean = false;
 
-  song: Song = new ChordSheetJS.Song();
-  lines: string[] = [];
-  songLine: Line | null = null;
-  chordLyricsPair: ChordLyricsPair | null = null;
-  currentLine = 0;
-  lineCount = 0;
-  processingText = true;
-  preserveWhitespace = true;
+  private groups: string[][] = [];
+  private currentGroup: string[] | null = null;
 
-  /**
-   * all of the following is a copy of
-   * https://github.com/martijnversluis/ChordSheetJS/blob/master/src/parser/ultimate_guitar_parser.ts
-   * except that we check for titles in the Verse and Chorus sections
-   * and support Tab sections
-   */
-
-  endOfSong() {
+  override endOfSong() {
     if (
       this.currentSectionType !== null &&
       this.currentSectionType in endSectionTags
@@ -91,10 +75,10 @@ class CustomUltimateGuitarRawParser {
     }
 
     this.currentSectionType = sectionType;
-    this.song.setCurrentProperties(sectionType);
+    this.songBuilder.setCurrentProperties(sectionType);
 
     if (sectionType in startSectionTags) {
-      this.song.addTag(
+      this.songBuilder.addTag(
         new ChordSheetJS.Tag(startSectionTags[sectionType], sectionValue)
       );
     }
@@ -105,7 +89,7 @@ class CustomUltimateGuitarRawParser {
       this.currentSectionType !== null &&
       this.currentSectionType in endSectionTags
     ) {
-      this.song.addTag(
+      this.songBuilder.addTag(
         new ChordSheetJS.Tag(endSectionTags[this.currentSectionType])
       );
 
@@ -114,19 +98,13 @@ class CustomUltimateGuitarRawParser {
       }
     }
 
-    this.song.setCurrentProperties(NONE);
+    this.songBuilder.setCurrentProperties(NONE);
     this.currentSectionType = null;
   }
 
   startNewLine() {
-    this.songLine = this.song.addLine();
+    this.songLine = this.songBuilder.addLine();
   }
-
-  /**
-   * all of the following is a copy of
-   * https://github.com/martijnversluis/ChordSheetJS/blob/master/src/parser/chord_sheet_parser.ts
-   * except that we check for tabs in the parse method
-   */
 
   /**
    * Instantiate a chord sheet parser
@@ -134,11 +112,8 @@ class CustomUltimateGuitarRawParser {
    * @param {boolean} options.preserveWhitespace whether to preserve trailing whitespace for chords
    */
   constructor({ preserveWhitespace = true } = {}) {
-    this.preserveWhitespace = preserveWhitespace === true;
+    super({ preserveWhitespace });
   }
-
-  groups: string[][] = [];
-  currentGroup: string[] | null = null;
 
   /**
    * Parses a UltimateGuitar chord sheet into a song
@@ -147,7 +122,7 @@ class CustomUltimateGuitarRawParser {
    * @param {Song} options.song The {@link Song} to store the song data in
    * @returns {Song} The parsed song
    */
-  parse(chordSheet: string, { song }: { song?: Song } = {}): Song {
+  override parse(chordSheet: string, { song }: { song?: Song } = {}): Song {
     this.initialize(chordSheet, song);
 
     while (this.hasNextLine()) {
@@ -155,7 +130,7 @@ class CustomUltimateGuitarRawParser {
 
       if (this.waitEndOfTabSection) {
         if (/^(.*?)\[\/tab\]$/i.test(line)) {
-          // console.log('found tab  end:', line);
+          // found tab end
           this.waitEndOfTabSection = false;
 
           const cleanedLine = line.match(/^(.*?)\[\/tab\]$/i)?.[1] ?? "";
@@ -171,7 +146,7 @@ class CustomUltimateGuitarRawParser {
 
       // check if this is a tab start
       else if (/^\[tab\](.*?)$/i.test(line)) {
-        // console.log('found tab  start:', line);
+        // found tab start
         this.waitEndOfTabSection = true;
 
         this.startGroup();
@@ -207,8 +182,8 @@ class CustomUltimateGuitarRawParser {
     if (!this.currentGroup) {
       this.startGroup();
     }
-    // console.log('adding to current group: ', line);
-    if (this.currentGroup) this.currentGroup.push(line);
+
+    this.currentGroup?.push(line);
   }
 
   private startGroup() {
@@ -216,19 +191,15 @@ class CustomUltimateGuitarRawParser {
       this.endGroup();
     }
 
-    // console.log('starting new group ...');
     this.currentGroup = [];
     this.groups.push(this.currentGroup);
   }
 
   private endGroup() {
-    // console.log('ending group ...');
     this.currentGroup = null;
   }
 
   private processGroup(group: string[]) {
-    // console.log(group);
-
     for (let i = 0; i < group.length; i++) {
       const line = group[i];
       const nextLine = group[i + 1];
@@ -262,9 +233,7 @@ class CustomUltimateGuitarRawParser {
     this.songLine.addTag(new ChordSheetJS.Tag(COMMENT, comment));
   }
 
-  parseNonEmptyLine(line: string, nextLine: string | undefined) {
-    // console.log(`${line}`);
-
+  override parseNonEmptyLine(line: string, nextLine?: string): boolean {
     let hasUsedNextLine = false;
 
     if (!this.songLine) throw new Error("Expected this.songLine to be present");
@@ -273,18 +242,17 @@ class CustomUltimateGuitarRawParser {
 
     // we found a chord line
     if (CHORD_LINE_REGEX.test(line) && nextLine !== undefined) {
-      // console.log('^ First line is a chord line!');
+      // first line is a chord line
 
       // if nextLine also is a chord line, do not process as lyrics
       if (CHORD_LINE_REGEX.test(nextLine)) {
-        // console.log(`${nextLine}`);
-        // console.log('^ Second line is also a chord line!');
+        // second line is also a chord line
 
         // first add the chords
         this.parseLyricsWithChordsRaw(line, "");
 
         // then make sure to add the second line of chords without any lyrics
-        this.songLine = this.song.addLine();
+        this.songLine = this.songBuilder.addLine();
         this.chordLyricsPair = this.songLine.addChordLyricsPair();
         this.parseLyricsWithChordsRaw(nextLine, "");
 
@@ -295,8 +263,7 @@ class CustomUltimateGuitarRawParser {
         GUITAR_TAB_LINE_REGEX.test(nextLine) &&
         !this.waitEndOfGuitarTabs
       ) {
-        // console.log(`${nextLine}`);
-        // console.log('^ Second line is a first guitar line!');
+        // second line is a first guitar line
         this.waitEndOfGuitarTabs = true;
 
         // first add the chords
@@ -306,7 +273,7 @@ class CustomUltimateGuitarRawParser {
         this.startSection(TAB);
 
         // and add the guitar tab line as lyrics
-        this.songLine = this.song.addLine();
+        this.songLine = this.songBuilder.addLine();
         this.chordLyricsPair = this.songLine.addChordLyricsPair();
         this.parseLyricsRaw(nextLine);
 
@@ -314,10 +281,7 @@ class CustomUltimateGuitarRawParser {
 
         // nextLine is likely lyrics
       } else {
-        // console.log(`${nextLine}`);
-        // console.log(
-        //   '^ Second line is likely lyrics - adding chord lyrics line!'
-        // );
+        // second line is likely lyrics - adding chord lyrics line
 
         // add a normal chord and lyrics line
         this.parseLyricsWithChordsRaw(line, nextLine);
@@ -329,20 +293,20 @@ class CustomUltimateGuitarRawParser {
     } else {
       // if the line look like the first guitar tab line, do not process as lyrics
       if (GUITAR_TAB_LINE_REGEX.test(line) && !this.waitEndOfGuitarTabs) {
-        // console.log('^ This is a first guitar line!');
+        // this is a first guitar line
         this.waitEndOfGuitarTabs = true;
 
         // start a guitar tab section
         this.startSection(TAB);
 
         // and add the guitar tab line as lyrics
-        this.songLine = this.song.addLine();
+        this.songLine = this.songBuilder.addLine();
         this.chordLyricsPair = this.songLine.addChordLyricsPair();
         this.parseLyricsRaw(line);
 
         // if the line look like the last guitar tab line, do not process as lyrics
       } else if (GUITAR_TAB_LINE_REGEX.test(line) && this.waitEndOfGuitarTabs) {
-        // console.log('^ This is a last guitar line!');
+        // this is a last guitar line
         this.waitEndOfGuitarTabs = false;
 
         this.parseLyricsRaw(line);
@@ -351,14 +315,14 @@ class CustomUltimateGuitarRawParser {
 
         // we check for a chord line with a second line above, but if it's the very last line, we process it here
       } else if (CHORD_LINE_REGEX.test(line)) {
-        // console.log('^ This is a chord line as the last line in group!');
+        // this is a chord line as the last line in group
 
         // add the chords
         this.parseLyricsWithChordsRaw(line, "");
 
         //if the line is not a guitar tab line it's probably just a text line
       } else {
-        // console.log('^ This is a normal text line!');
+        // this is a normal text line
 
         // add a normal lyrics line
         this.parseLyricsRaw(line);
@@ -401,27 +365,6 @@ class CustomUltimateGuitarRawParser {
     });
   };
 
-  initialize(document: string, song: Song | null = null) {
-    if (song) {
-      this.song = song;
-    }
-
-    this.lines = this.normalizeLineEndings(document).split("\n");
-    this.currentLine = 0;
-    this.lineCount = this.lines.length;
-    this.processingText = true;
-  }
-
-  readLine() {
-    const line = this.lines[this.currentLine];
-    this.currentLine += 1;
-    return line;
-  }
-
-  hasNextLine() {
-    return this.currentLine < this.lineCount;
-  }
-
   parseLyricsRaw = (rawLyricsLine: string) => {
     if (!this.chordLyricsPair)
       throw new Error("Expected this.chordLyricsPair to be present");
@@ -451,7 +394,7 @@ class CustomUltimateGuitarRawParser {
     this.parseLyricsWithChords(chordsLine, lyricsLine);
   }
 
-  parseLyricsWithChords(chordsLine: string, lyricsLine: string) {
+  override parseLyricsWithChords(chordsLine: string, lyricsLine: string) {
     this.processCharacters(chordsLine, lyricsLine);
 
     if (!this.chordLyricsPair)
@@ -467,62 +410,8 @@ class CustomUltimateGuitarRawParser {
     }
 
     if (!lyricsLine.trim().length) {
-      this.songLine = this.song.addLine();
+      this.songLine = this.songBuilder.addLine();
     }
-  }
-
-  processCharacters(chordsLine: string, lyricsLine: string) {
-    for (let c = 0, charCount = chordsLine.length; c < charCount; c += 1) {
-      const chr = chordsLine[c];
-      const nextChar = chordsLine[c + 1];
-      const isWhiteSpace = WHITE_SPACE.test(chr);
-      this.addCharacter(chr, nextChar);
-
-      if (!this.chordLyricsPair)
-        throw new Error("Expected this.chordLyricsPair to be present");
-
-      this.chordLyricsPair.lyrics += lyricsLine[c] || "";
-      this.processingText = !isWhiteSpace;
-    }
-  }
-
-  addCharacter(chr: string, nextChar: string) {
-    const isWhiteSpace = WHITE_SPACE.test(chr);
-    // const isNonChordCharacter = /[?|()*,]/.test(chr); // do not add question mark, pipe etc to chords
-
-    if (!isWhiteSpace) {
-      this.ensureChordLyricsPairInitialized();
-    }
-
-    if (
-      // do not need this if we are removing everything except the chords within ch tags:
-      // !isNonChordCharacter && // remember to have the two next or'ed arguments in parenthesis
-      !isWhiteSpace ||
-      this.shouldAddCharacterToChords(nextChar)
-    ) {
-      if (!this.chordLyricsPair)
-        throw new Error("Expected this.chordLyricsPair to be present");
-
-      this.chordLyricsPair.chords += chr;
-    }
-  }
-
-  shouldAddCharacterToChords(nextChar: string) {
-    return nextChar && WHITE_SPACE.test(nextChar) && this.preserveWhitespace;
-  }
-
-  ensureChordLyricsPairInitialized() {
-    if (!this.processingText) {
-      if (!this.songLine)
-        throw new Error("Expected this.songLine to be present");
-
-      this.chordLyricsPair = this.songLine.addChordLyricsPair();
-      this.processingText = true;
-    }
-  }
-
-  normalizeLineEndings(string: string): string {
-    return string.replace(/\r\n?/g, "\n");
   }
 }
 
