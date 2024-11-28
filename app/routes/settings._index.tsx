@@ -11,7 +11,7 @@ import { useFirebase } from "~/context/FirebaseContext";
 import { translatedLanguages } from "~/i18n/i18n";
 import { type loader as parentLoader } from "~/root";
 import { downloadFile } from "~/utils/downloadFile";
-import pad from "~/utils/pad";
+import { pad } from "~/utils/pad";
 import { useTranslation } from "react-i18next";
 import { Theme, useTheme } from "remix-themes";
 

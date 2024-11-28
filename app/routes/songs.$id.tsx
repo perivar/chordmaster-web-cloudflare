@@ -15,7 +15,7 @@ import {
 } from "@remix-run/react";
 import { editSongReducer, useAppContext } from "~/context/AppContext";
 import { readDataFileFromUrl } from "~/files.server";
-import clamp from "~/utils/clamp";
+import { clamp } from "~/utils/clamp";
 import { getChordPro } from "~/utils/getChordPro";
 import { GuitarChords } from "~/utils/getGuitarChordMap";
 import {
