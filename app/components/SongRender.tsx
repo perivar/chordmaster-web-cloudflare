@@ -9,8 +9,7 @@ import {
   START_OF_TAB,
   START_OF_VERSE,
   TITLE,
-} from "~/utils/ChordSheetConstants";
-
+} from "~/lib/ChordSheetConstants";
 import {
   MyChordLyricsPair,
   MyComment,

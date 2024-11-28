@@ -12,7 +12,7 @@ import {
   START_OF_VERSE,
   TAB,
   VERSE,
-} from "./ChordSheetConstants";
+} from "../lib/ChordSheetConstants";
 import { getChordLineRegex } from "./getChordRegex";
 
 type ParagraphType = "verse" | "chorus" | "none" | "indeterminate" | "tab";
@@ -50,7 +50,7 @@ const CHORD_LINE_REGEX = getChordLineRegex("gi");
  * support for many variations. Besides that, some chordpro feature have been ported back
  * to ChordsOverWordsParser, which adds some interesting functionality.
  */
-class CustomUltimateGuitarParser extends ChordSheetParser {
+export default class CustomUltimateGuitarParser extends ChordSheetParser {
   // this is used to find sections that end with a newline
   private currentSectionType: string | null = null;
 
@@ -90,53 +90,6 @@ class CustomUltimateGuitarParser extends ChordSheetParser {
     if (!this.songLine) throw new Error("Expected this.songLine to be present");
 
     this.songLine.addTag(new ChordSheetJS.Tag(COMMENT, comment));
-  }
-
-  override endOfSong() {
-    if (
-      this.currentSectionType !== null &&
-      this.currentSectionType in endSectionTags
-    ) {
-      this.startNewLine();
-    }
-    this.endSection({ addNewLine: false });
-  }
-
-  startSection(sectionType: ParagraphType, sectionValue?: string) {
-    if (this.currentSectionType) {
-      this.endSection();
-    }
-
-    this.currentSectionType = sectionType;
-    this.songBuilder.setCurrentProperties(sectionType);
-
-    if (sectionType in startSectionTags) {
-      this.songBuilder.addTag(
-        new ChordSheetJS.Tag(startSectionTags[sectionType], sectionValue)
-      );
-    }
-  }
-
-  endSection({ addNewLine = true } = {}) {
-    if (
-      this.currentSectionType !== null &&
-      this.currentSectionType in endSectionTags
-    ) {
-      this.songBuilder.addTag(
-        new ChordSheetJS.Tag(endSectionTags[this.currentSectionType])
-      );
-
-      if (addNewLine) {
-        this.startNewLine();
-      }
-    }
-
-    this.songBuilder.setCurrentProperties(NONE);
-    this.currentSectionType = null;
-  }
-
-  startNewLine() {
-    this.songLine = this.songBuilder.addLine();
   }
 
   override parseNonEmptyLine(line: string) {
@@ -217,7 +170,54 @@ class CustomUltimateGuitarParser extends ChordSheetParser {
     }
   }
 
-  parseLyricsRaw = (rawLyricsLine: string) => {
+  private startSection(sectionType: ParagraphType, sectionValue?: string) {
+    if (this.currentSectionType) {
+      this.endSection();
+    }
+
+    this.currentSectionType = sectionType;
+    this.songBuilder.setCurrentProperties(sectionType);
+
+    if (sectionType in startSectionTags) {
+      this.songBuilder.addTag(
+        new ChordSheetJS.Tag(startSectionTags[sectionType], sectionValue)
+      );
+    }
+  }
+
+  private endSection({ addNewLine = true } = {}) {
+    if (
+      this.currentSectionType !== null &&
+      this.currentSectionType in endSectionTags
+    ) {
+      this.songBuilder.addTag(
+        new ChordSheetJS.Tag(endSectionTags[this.currentSectionType])
+      );
+
+      if (addNewLine) {
+        this.startNewLine();
+      }
+    }
+
+    this.songBuilder.setCurrentProperties(NONE);
+    this.currentSectionType = null;
+  }
+
+  private startNewLine() {
+    this.songLine = this.songBuilder.addLine();
+  }
+
+  override endOfSong() {
+    if (
+      this.currentSectionType !== null &&
+      this.currentSectionType in endSectionTags
+    ) {
+      this.startNewLine();
+    }
+    this.endSection({ addNewLine: false });
+  }
+
+  private parseLyricsRaw = (rawLyricsLine: string) => {
     if (!this.chordLyricsPair)
       throw new Error("Expected this.chordLyricsPair to be present");
 
@@ -229,7 +229,10 @@ class CustomUltimateGuitarParser extends ChordSheetParser {
     this.chordLyricsPair.lyrics = `${lyricsLine}`;
   };
 
-  parseLyricsWithChordsRaw(rawChordsLine: string, rawLyricsLine: string) {
+  private parseLyricsWithChordsRaw(
+    rawChordsLine: string,
+    rawLyricsLine: string
+  ) {
     let chordsLine = rawChordsLine;
 
     // remove tags and trim end
@@ -263,5 +266,3 @@ class CustomUltimateGuitarParser extends ChordSheetParser {
     }
   }
 }
-
-export default CustomUltimateGuitarParser;

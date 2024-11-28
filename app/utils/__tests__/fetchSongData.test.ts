@@ -49,7 +49,7 @@ test("fetchUrl NorTab", async () => {
   const url = "https://nortabs.net/tab/6878/";
   const htmlResult = await fetchUrl(url);
 
-  const { artist, songName, content } = parseNorTabsChords(htmlResult);
+  const { content } = parseNorTabsChords(htmlResult);
 
   writeSongAsText(content!, DO_DEBUG_FILE, "debug/debugFetchRawNorTab.txt");
 

@@ -263,9 +263,9 @@ export const removeTabs = (content: string) => {
   // this version uses a variant found on:
   // https://github.com/briancaffey/briancaffey.github.io/blob/master/content/2018/04/26/generating-music-from-guitar-tabs-with-python.html.md
   // added \|? to also support |E| type of tabs
-  const regexTabline = /(?:\|?[EBGDA-]+\|.+?\|.*\r?\n|\r){6}/gim;
+  const regTabLine = /(?:\|?[EBGDA-]+\|.+?\|.*\r?\n|\r){6}/gim;
 
-  removed = removed.replace(regexTabline, "");
+  removed = removed.replace(regTabLine, "");
 
   return removed;
 };
@@ -311,14 +311,14 @@ export const cleanupHeaders = (content: string) => {
   let removed = content;
 
   // match a pattern of [something] + one or more newlines and a chord line
-  // used to remove several newlines before a chordline
+  // used to remove several newlines before a chord line
 
-  const regheader = getHeaderRegex();
+  const regHeader = getHeaderRegex();
   const regLineBreak = /(?:\r?\n|\r){2,}/; // Match two or more consecutive line breaks
   const chordLinePattern = getChordLineRegex(); // Match a chord line (e.g., C#m7, F#7/G#)
 
   const regHeaderChordLine = new RegExp(
-    `(${regheader.source})${regLineBreak.source}(${chordLinePattern.source})`,
+    `(${regHeader.source})${regLineBreak.source}(${chordLinePattern.source})`,
     "gm"
   );
 
@@ -331,11 +331,11 @@ export const cleanupDoubleChordLines = (content: string) => {
   let result = content;
 
   // define the regex for double chord lines (two chord lines separated by exactly one newline)
-  // this regex matches two chordlines with just one newline between them
+  // this regex matches two chord lines with just one newline between them
   const regDoubleChordLines = getDoubleChordLinesRegex("gm");
 
-  // Replace all pairs of chordlines with exactly one newline between them with two newlines
-  // We continue to replace any occurrences of exactly one newline between chordlines
+  // Replace all pairs of chord lines with exactly one newline between them with two newlines
+  // We continue to replace any occurrences of exactly one newline between chord lines
   while (regDoubleChordLines.test(result)) {
     result = result.replace(regDoubleChordLines, "$1\n\n$2");
   }

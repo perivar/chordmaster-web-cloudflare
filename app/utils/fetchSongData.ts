@@ -8,7 +8,15 @@ import {
   parseUltimateGuitar,
 } from "./scrapeUtils";
 
-export const fetchSongData = async (query: string) => {
+export const fetchSongData = async (
+  query: string
+): Promise<{
+  artist: string;
+  songName: string;
+  chordPro: string;
+  url: string;
+  source: string;
+}> => {
   // example urls:
 
   // www.chordie.com:

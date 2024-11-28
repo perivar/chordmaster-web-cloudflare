@@ -8,7 +8,7 @@ import {
   START_OF_TAB,
   START_OF_VERSE,
   TITLE,
-} from "./ChordSheetConstants";
+} from "../lib/ChordSheetConstants";
 
 const NEW_LINE = "\n";
 

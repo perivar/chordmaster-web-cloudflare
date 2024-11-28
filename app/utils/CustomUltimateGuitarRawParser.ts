@@ -6,9 +6,10 @@ import {
   NONE,
   START_OF_TAB,
   TAB,
-} from "./ChordSheetConstants";
+} from "../lib/ChordSheetConstants";
 import { getChordSymbol } from "./getChordSymbol";
 import { trimMultiple } from "./trimMultiple";
+import { unescapeUTF8 } from "./unescapeUTF8";
 
 type ParagraphType = "verse" | "chorus" | "none" | "indeterminate" | "tab";
 
@@ -19,9 +20,6 @@ const startSectionTags: Record<string, string> = {
 const endSectionTags: Record<string, string> = {
   [TAB]: END_OF_TAB,
 };
-
-// for good example using several regex'es see
-// https://github.com/martijnversluis/ChordSheetJS/blob/check-chord-parsing/src/chord.ts
 
 // see https://github.com/martijnversluis/ChordSheetJS/blob/master/src/parser/ultimate_guitar_parser.ts
 // if adding a ^ at the start we only care about headers that start on a newline instead of in the middle of a sentence?
@@ -39,6 +37,10 @@ const GUITAR_TAB_LINE_REGEX = /^(?:\|?e(?:\s|\|)?-[^\n\r]+)$/i;
 // as long as it contains at least one [ch][/ch] tag, it's a chord line
 const CHORD_LINE_REGEX = /\[ch\]([^[]+)\[\/ch\]/;
 
+// Regex constants for parsing
+const TAB_START_REGEX = /^\[tab\](.*?)$/i; // Matches the start of a tab section
+const TAB_END_REGEX = /^(.*?)\[\/tab\]$/i; // Matches the end of a tab section
+
 /**
  * Parses an Ultimate Guitar chord sheet with metadata
  * Note that ChordSheetParser is deprecated in the master branch, and we are asked to use ChordsOverWordsParser instead.
@@ -46,7 +48,7 @@ const CHORD_LINE_REGEX = /\[ch\]([^[]+)\[\/ch\]/;
  * support for many variations. Besides that, some chordpro feature have been ported back
  * to ChordsOverWordsParser, which adds some interesting functionality.
  */
-class CustomUltimateGuitarRawParser extends ChordSheetParser {
+export default class CustomUltimateGuitarRawParser extends ChordSheetParser {
   // this is used to find sections that end with a newline
   private currentSectionType: string | null = null;
 
@@ -56,55 +58,9 @@ class CustomUltimateGuitarRawParser extends ChordSheetParser {
   // this is used to check whether we are processing tab sections
   private waitEndOfTabSection: boolean = false;
 
+  // parse into groups by finding start and end tags
   private groups: string[][] = [];
   private currentGroup: string[] | null = null;
-
-  override endOfSong() {
-    if (
-      this.currentSectionType !== null &&
-      this.currentSectionType in endSectionTags
-    ) {
-      this.startNewLine();
-    }
-    this.endSection({ addNewLine: false });
-  }
-
-  startSection(sectionType: ParagraphType, sectionValue?: string) {
-    if (this.currentSectionType) {
-      this.endSection();
-    }
-
-    this.currentSectionType = sectionType;
-    this.songBuilder.setCurrentProperties(sectionType);
-
-    if (sectionType in startSectionTags) {
-      this.songBuilder.addTag(
-        new ChordSheetJS.Tag(startSectionTags[sectionType], sectionValue)
-      );
-    }
-  }
-
-  endSection({ addNewLine = true } = {}) {
-    if (
-      this.currentSectionType !== null &&
-      this.currentSectionType in endSectionTags
-    ) {
-      this.songBuilder.addTag(
-        new ChordSheetJS.Tag(endSectionTags[this.currentSectionType])
-      );
-
-      if (addNewLine) {
-        this.startNewLine();
-      }
-    }
-
-    this.songBuilder.setCurrentProperties(NONE);
-    this.currentSectionType = null;
-  }
-
-  startNewLine() {
-    this.songLine = this.songBuilder.addLine();
-  }
 
   /**
    * Instantiate a chord sheet parser
@@ -123,38 +79,36 @@ class CustomUltimateGuitarRawParser extends ChordSheetParser {
    * @returns {Song} The parsed song
    */
   override parse(chordSheet: string, { song }: { song?: Song } = {}): Song {
-    this.initialize(chordSheet, song);
+    super.initialize(chordSheet, song);
 
     while (this.hasNextLine()) {
       const line = this.readLine();
 
       if (this.waitEndOfTabSection) {
-        if (/^(.*?)\[\/tab\]$/i.test(line)) {
-          // found tab end
+        // Inside a tab section, look for its end marker.
+        if (TAB_END_REGEX.test(line)) {
+          // Found the end of a tab section.
           this.waitEndOfTabSection = false;
 
-          const cleanedLine = line.match(/^(.*?)\[\/tab\]$/i)?.[1] ?? "";
+          const cleanedLine = line.match(TAB_END_REGEX)?.[1] ?? "";
           this.addToCurrentGroup(cleanedLine);
-
           this.endGroup();
-
-          // remember to add all lines to the group
         } else {
+          // remember to add all lines to the group
           this.addToCurrentGroup(line);
         }
       }
 
       // check if this is a tab start
-      else if (/^\[tab\](.*?)$/i.test(line)) {
-        // found tab start
+      else if (TAB_START_REGEX.test(line)) {
+        // Found the start of a tab section.
         this.waitEndOfTabSection = true;
 
         this.startGroup();
-        const cleanedLine = line.match(/^\[tab\](.*?)$/i)?.[1] ?? "";
+        const cleanedLine = line.match(TAB_START_REGEX)?.[1] ?? "";
         this.addToCurrentGroup(cleanedLine);
-
-        // neither tab start or tab end, add to current group
       } else {
+        // neither tab start or tab end, add to current group
         this.addToCurrentGroup(line);
       }
     }
@@ -332,8 +286,55 @@ class CustomUltimateGuitarRawParser extends ChordSheetParser {
     return hasUsedNextLine;
   }
 
+  private startSection(sectionType: ParagraphType, sectionValue?: string) {
+    if (this.currentSectionType) {
+      this.endSection();
+    }
+
+    this.currentSectionType = sectionType;
+    this.songBuilder.setCurrentProperties(sectionType);
+
+    if (sectionType in startSectionTags) {
+      this.songBuilder.addTag(
+        new ChordSheetJS.Tag(startSectionTags[sectionType], sectionValue)
+      );
+    }
+  }
+
+  private endSection({ addNewLine = true } = {}) {
+    if (
+      this.currentSectionType !== null &&
+      this.currentSectionType in endSectionTags
+    ) {
+      this.songBuilder.addTag(
+        new ChordSheetJS.Tag(endSectionTags[this.currentSectionType])
+      );
+
+      if (addNewLine) {
+        this.startNewLine();
+      }
+    }
+
+    this.songBuilder.setCurrentProperties(NONE);
+    this.currentSectionType = null;
+  }
+
+  private startNewLine() {
+    this.songLine = this.songBuilder.addLine();
+  }
+
+  override endOfSong() {
+    if (
+      this.currentSectionType !== null &&
+      this.currentSectionType in endSectionTags
+    ) {
+      this.startNewLine();
+    }
+    this.endSection({ addNewLine: false });
+  }
+
   // remove all characters from a chord line except the chords themselves
-  cleanupChordLine = (line: string) => {
+  private cleanupChordLine = (line: string) => {
     // https://matthaliski.com/blog/regex-match-for-spaces-outside-of-html-tags
 
     let cleanedLine = line;
@@ -343,7 +344,7 @@ class CustomUltimateGuitarRawParser extends ChordSheetParser {
   };
 
   // remove tab and chord tags
-  cleanupTabAndChordTags = (line: string) => {
+  private cleanupTabAndChordTags = (line: string) => {
     let cleanedLine = line;
 
     cleanedLine = cleanedLine.replace(/\[\/?tab\]/g, "");
@@ -353,19 +354,12 @@ class CustomUltimateGuitarRawParser extends ChordSheetParser {
     cleanedLine = cleanedLine.trimEnd();
 
     // and unescape UTF8 strings like %27
-    cleanedLine = this.unescapeUTF8(cleanedLine);
+    cleanedLine = unescapeUTF8(cleanedLine);
 
     return cleanedLine;
   };
 
-  unescapeUTF8 = (str: string) => {
-    return str.replace(/%([0-9]{2})/g, (match, numStr) => {
-      const num = parseInt(numStr, 16); // read num as normal number
-      return String.fromCharCode(num);
-    });
-  };
-
-  parseLyricsRaw = (rawLyricsLine: string) => {
+  private parseLyricsRaw = (rawLyricsLine: string) => {
     if (!this.chordLyricsPair)
       throw new Error("Expected this.chordLyricsPair to be present");
 
@@ -377,7 +371,10 @@ class CustomUltimateGuitarRawParser extends ChordSheetParser {
     this.chordLyricsPair.lyrics = `${lyricsLine}`;
   };
 
-  parseLyricsWithChordsRaw(rawChordsLine: string, rawLyricsLine: string) {
+  private parseLyricsWithChordsRaw(
+    rawChordsLine: string,
+    rawLyricsLine: string
+  ) {
     let chordsLine = rawChordsLine;
 
     // remove everything except the chords themselves
@@ -414,5 +411,3 @@ class CustomUltimateGuitarRawParser extends ChordSheetParser {
     }
   }
 }
-
-export default CustomUltimateGuitarRawParser;

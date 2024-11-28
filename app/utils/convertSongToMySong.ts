@@ -8,7 +8,7 @@ import {
   MyLiteral,
   MySong,
   MyTag,
-} from "~/lib/MySong";
+} from "../lib/MySong";
 
 export const convertSongToMySong = (song: Song): MySong => {
   const myLines = song.lines.map(line => {

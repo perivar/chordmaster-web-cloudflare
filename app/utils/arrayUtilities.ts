@@ -2,7 +2,7 @@
 
 //#region Generic Utility Methods
 // This constraint ensures that T has an "id" property
-interface Identifiable {
+export interface Identifiable {
   id: string;
 }
 

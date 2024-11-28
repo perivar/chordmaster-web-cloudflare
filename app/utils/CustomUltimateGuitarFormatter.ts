@@ -20,7 +20,7 @@ import {
   START_OF_VERSE,
   SUBTITLE,
   TITLE,
-} from "./ChordSheetConstants";
+} from "../lib/ChordSheetConstants";
 
 // have to copy this from the chordsheetjs main.d.ts since it's not exported
 type Item = ChordLyricsPair | Comment | Tag | Ternary | Literal;
@@ -94,7 +94,7 @@ const NEW_LINE = "\n";
  * such as [Verse 1] and [Chorus] in square brackets.
  * @see https://www.ultimate-guitar.com/contribution/help/rubric#iii
  */
-class CustomUltimateGuitarFormatter {
+export default class CustomUltimateGuitarFormatter {
   /**
    * Formats a song into a ultimate song format
    * @param {Song} song The song to be formatted
@@ -251,5 +251,3 @@ class CustomUltimateGuitarFormatter {
     );
   }
 }
-
-export default CustomUltimateGuitarFormatter;
