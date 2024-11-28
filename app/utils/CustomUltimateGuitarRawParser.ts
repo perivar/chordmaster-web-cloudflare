@@ -1,4 +1,4 @@
-import ChordSheetJS, { ChordSheetParser, Song } from "chordsheetjs";
+import ChordSheetJS, { Song } from "chordsheetjs";
 
 import {
   COMMENT,
@@ -48,7 +48,7 @@ const TAB_END_REGEX = /^(.*?)\[\/tab\]$/i; // Matches the end of a tab section
  * support for many variations. Besides that, some chordpro feature have been ported back
  * to ChordsOverWordsParser, which adds some interesting functionality.
  */
-export default class CustomUltimateGuitarRawParser extends ChordSheetParser {
+export default class CustomUltimateGuitarRawParser extends ChordSheetJS.ChordSheetParser {
   // this is used to find sections that end with a newline
   private currentSectionType: string | null = null;
 

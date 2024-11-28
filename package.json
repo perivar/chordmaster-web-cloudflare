@@ -65,7 +65,7 @@
     "lucide-react": "^0.462.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-i18next": "^15.1.1",
+    "react-i18next": "^15.1.2",
     "react-svg": "^16.2.0",
     "remix-i18next": "^6.4.1",
     "remix-themes": "^1.5.1",
@@ -76,7 +76,7 @@
     "vaul": "^1.1.1"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20241112.0",
+    "@cloudflare/workers-types": "^4.20241127.0",
     "@ianvs/prettier-plugin-sort-imports": "^4.4.0",
     "@remix-run/dev": "^2.15.0",
     "@types/he": "^1.2.3",

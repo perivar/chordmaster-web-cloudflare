@@ -1,4 +1,4 @@
-import ChordSheetJS, { ChordSheetParser } from "chordsheetjs";
+import ChordSheetJS from "chordsheetjs";
 
 import {
   CHORUS,
@@ -50,7 +50,7 @@ const CHORD_LINE_REGEX = getChordLineRegex("gi");
  * support for many variations. Besides that, some chordpro feature have been ported back
  * to ChordsOverWordsParser, which adds some interesting functionality.
  */
-export default class CustomUltimateGuitarParser extends ChordSheetParser {
+export default class CustomUltimateGuitarParser extends ChordSheetJS.ChordSheetParser {
   // this is used to find sections that end with a newline
   private currentSectionType: string | null = null;
 
