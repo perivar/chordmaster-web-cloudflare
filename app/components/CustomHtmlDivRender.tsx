@@ -1,4 +1,4 @@
-import CustomHtmlDivFormatter from "~/utils/CustomHtmlDivFormatter";
+import { CustomHtmlDivFormatter } from "~/utils/CustomHtmlDivFormatter";
 import { Song } from "chordsheetjs";
 
 // make sure to import

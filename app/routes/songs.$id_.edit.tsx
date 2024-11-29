@@ -9,8 +9,8 @@ import {
   useAppContext,
 } from "~/context/AppContext";
 import { useFirebase } from "~/context/FirebaseContext";
-import CustomUltimateGuitarFormatter from "~/utils/CustomUltimateGuitarFormatter";
-import CustomUltimateGuitarParser from "~/utils/CustomUltimateGuitarParser";
+import { CustomUltimateGuitarFormatter } from "~/utils/CustomUltimateGuitarFormatter";
+import { CustomUltimateGuitarParser } from "~/utils/CustomUltimateGuitarParser";
 import { getChordAlternativesTonal } from "~/utils/getChordAlternativesTonal";
 import { getChordSymbol } from "~/utils/getChordSymbol";
 import ChordSheetJS from "chordsheetjs";

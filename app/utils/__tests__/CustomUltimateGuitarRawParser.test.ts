@@ -1,7 +1,7 @@
 import ChordSheetJS from "chordsheetjs";
 
-import CustomUltimateGuitarFormatter from "../CustomUltimateGuitarFormatter";
-import CustomUltimateGuitarRawParser from "../CustomUltimateGuitarRawParser";
+import { CustomUltimateGuitarFormatter } from "../CustomUltimateGuitarFormatter";
+import { CustomUltimateGuitarRawParser } from "../CustomUltimateGuitarRawParser";
 import {
   chordTestUGChordPro,
   chordTestUGChordsPlan,

@@ -12,7 +12,7 @@ import {
 
 const NEW_LINE = "\n";
 
-export default class CustomHtmlDivFormatter {
+export class CustomHtmlDivFormatter {
   private isStartOfTabs(line: Line) {
     return line.items.some(
       i => i instanceof ChordSheetJS.Tag && i.name === START_OF_TAB

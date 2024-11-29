@@ -1,7 +1,7 @@
 import ChordSheetJS from "chordsheetjs";
 
-import CustomUltimateGuitarParser from "./CustomUltimateGuitarParser";
-import CustomUltimateGuitarRawParser from "./CustomUltimateGuitarRawParser";
+import { CustomUltimateGuitarParser } from "./CustomUltimateGuitarParser";
+import { CustomUltimateGuitarRawParser } from "./CustomUltimateGuitarRawParser";
 import {
   getAZChordContent,
   getNorTabsChordContent,

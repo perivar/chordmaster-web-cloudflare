@@ -94,7 +94,7 @@ const NEW_LINE = "\n";
  * such as [Verse 1] and [Chorus] in square brackets.
  * @see https://www.ultimate-guitar.com/contribution/help/rubric#iii
  */
-export default class CustomUltimateGuitarFormatter {
+export class CustomUltimateGuitarFormatter {
   /**
    * Formats a song into a ultimate song format
    * @param {Song} song The song to be formatted
