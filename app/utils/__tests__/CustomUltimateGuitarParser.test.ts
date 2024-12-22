@@ -120,7 +120,7 @@ test("parses a line with chords ahead of lyrics", () => {
 [Ab] I hold my [Eb]head a bit higher,  [Bb] I lift my [Cm]voice a bit louder`
   );
   const toBe = `
-Ab           Eb                   Bb           Cm
-   I hold my head a bit higher, ,    I lift my voice a bit louder`;
+Ab           Eb                  Bb           Cm
+   I hold my head a bit higher,     I lift my voice a bit louder`;
   expect(res).toBe(toBe);
 });
