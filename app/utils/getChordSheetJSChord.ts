@@ -20,7 +20,7 @@ export const getChordSheetJSChord = (chordTry1: string): Chord | null => {
       const parsedChordTry2 = ChordSheetJS.Chord.parse(chordTry2);
 
       if (parsedChordTry2) {
-        console.log(`Succesfully parsed ${chordTry2} using chordsheetjs`);
+        console.log(`Successfully parsed ${chordTry2} using chordsheetjs`);
         return parsedChordTry2;
       } else {
         // we still cannot parse this chord
@@ -35,7 +35,7 @@ export const getChordSheetJSChord = (chordTry1: string): Chord | null => {
           const parsedChordTry3 = ChordSheetJS.Chord.parse(chordTry3);
 
           if (parsedChordTry3) {
-            console.log(`Succesfully parsed ${chordTry3} using chordsheetjs`);
+            console.log(`Successfully parsed ${chordTry3} using chordsheetjs`);
             return parsedChordTry3;
           } else {
             // we still cannot parse this chord

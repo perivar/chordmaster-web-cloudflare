@@ -19,9 +19,12 @@ export const unescapeUTF8 = (str: string): string => {
   try {
     // Decode percent-encoded sequences to UTF-8
     return decodeURIComponent(str);
-  } catch (e) {
+  } catch (_e) {
     // Return the original string if decoding fails
-    console.error("Invalid UTF-8 encoding in string:", str, e);
+    console.warn(
+      "Warning could not decode UTF8. Invalid encoding in string:",
+      str
+    );
     return str;
   }
 };
